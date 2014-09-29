@@ -19,7 +19,7 @@ namespace HMMTest
 
         public void InitHmm1()
         {
-            hmm1 = new HMM.HMM(new string[3] { "In1", "Out1", "Out2" }, new string[2] { "Out1", "Out2" });
+            hmm1 = new HMM.HMM(new string[3] { "Start", "Final1", "Final2" }, new string[2] { "A", "B" });
 
             hmm1.IntialStateProbabilities.Clear();
             hmm1.IntialStateProbabilities[0] = 1;
@@ -46,18 +46,18 @@ namespace HMMTest
         public void ForwardTest()
         {
             InitHmm1();
-            Assert.AreEqual(.5, hmm1.ForwardFunc("Out1")(0, "Out1").Exp());
-            Assert.AreEqual(.5, hmm1.ForwardFunc("Out1", "Out1")(0, "Out1").Exp());
-            Assert.AreEqual(.5, hmm1.ForwardFunc("Out1", "Out1")(1, "Out1").Exp());
-            Assert.AreEqual(0, hmm1.ForwardFunc("Out1")(0, "Out2").Exp());
+            Assert.AreEqual(.5, hmm1.ForwardFunc("A")(0, "Final1").Exp());
+            Assert.AreEqual(.5, hmm1.ForwardFunc("A", "A")(0, "Final1").Exp());
+            Assert.AreEqual(.5, hmm1.ForwardFunc("A", "A")(1, "Final1").Exp());
+            Assert.AreEqual(0, hmm1.ForwardFunc("A")(0, "Final2").Exp());
         }
 
         [Test()]
         public void BackwardTest()
         {
             InitHmm1();
-            Assert.AreEqual(1, hmm1.BackwardFunc("Out1", "Out1")(0, "Out1").Exp());
-            Assert.AreEqual(0, hmm1.BackwardFunc("Out1", "Out2")(0, "Out1").Exp());
+            Assert.AreEqual(1, hmm1.BackwardFunc("A", "A", "A")(0, "Final1").Exp());
+            Assert.AreEqual(0, hmm1.BackwardFunc("B", "B", "B")(0, "Final1").Exp());
         }
 	}
 }
