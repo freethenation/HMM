@@ -51,20 +51,48 @@ namespace HMM
                                                                 States.First(i => badEmissionProb.Item1 == i.Value).Key,
                                                                 States.First(i => badEmissionProb.Item2 == i.Value).Key));
 		}
-        public double Forward(int time, string state, params string[] outputSequence)
+        /// <returns>(time, state)=></returns>
+        public Func<int, string, double> ForwardFunc(params string[] outputSequence)
 		{
-            return Forward(time, this.States[state], outputSequence.Select(i => this.Alphabet[i]).ToArray());
+            return (time, state) => 
+                ForwardFunc(outputSequence.Select(i => this.Alphabet[i]).ToArray())(time, States[state]);
 		}
-        public double Forward(int time, int state, params int[] outputSequence)
+        /// <returns>(time, state)=></returns>
+        public Func<int, int, double> ForwardFunc(params int[] outputSequence)
 		{
-            if (time == -1)
-                return IntialStateProbabilities[state].Log();
-            return States.Select(
-                (trash, s) => Forward(time - 1, s, outputSequence)
+            Func<int, int, double> forward = null;
+            forward = (time, state)=>
+            {
+                if (time == -1) return IntialStateProbabilities[state].Log();
+                return States.Select(
+                    (trash, s) => forward(time - 1, s)
                     + StateTransitionProbabilities[s, state].Log()
                     + SymbolEmissionProbabilities[s][state, outputSequence[time]].Log())
-            .LogSum();
+                .LogSum();
+            };
+            return forward.Memorize();
 		}
+        /// <returns>(time, state)=></returns>
+        public Func<int, string, double> BackwardFunc(params string[] outputSequence)
+        {
+            return (time, state) => 
+                BackwardFunc(outputSequence.Select(i => this.Alphabet[i]).ToArray())(time, States[state]);
+        }
+        /// <returns>(time, state)=></returns>
+        public Func<int, int, double> BackwardFunc(params int[] outputSequence)
+        {
+            Func<int, int, double> backward = null;
+            backward = (time, state)=>
+            {
+                if(time == outputSequence.Length) return (1.0).Log();
+                return States.Select(
+                    (trash, s) => backward(time + 1, s)
+                    + StateTransitionProbabilities[state, s].Log()
+                    + SymbolEmissionProbabilities[state][s, outputSequence[time]].Log())
+                .LogSum();
+            };
+            return backward.Memorize();
+        }
 	}
 }
 

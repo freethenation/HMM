@@ -60,6 +60,19 @@ namespace HMM
             foreach (var i in enumerable) ret = ret.LogAdd(i);
             return ret;
         }
+        public static Func<T1, T2, TResult> Memorize<T1, T2, TResult>(this Func<T1, T2, TResult> func)
+        {
+            var cache = new Dictionary<Tuple<T1,T2>, TResult>();
+            return (arg1, arg2) =>
+            {
+                var tuple = Tuple.Create(arg1, arg2);
+                TResult ret;
+                if(cache.TryGetValue(tuple, out ret)) return ret;
+                ret = func(arg1, arg2);
+                cache[tuple] = ret;
+                return ret;
+            };
+        }
 	}
 }
 
