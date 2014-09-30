@@ -21,15 +21,12 @@ namespace HMMTest
         {
             hmm1 = new HMM.HMM(new string[3] { "Start", "Final1", "Final2" }, new string[2] { "A", "B" });
 
-            hmm1.IntialStateProbabilities.Clear();
-            hmm1.IntialStateProbabilities[0] = 1;
+            hmm1.IntialStateProbabilities.SetValues(new double[] { 1, 0, 0 });
 
-            hmm1.StateTransitionProbabilities.ClearRow(0);
-            hmm1.StateTransitionProbabilities[0, 1] = .5;
-            hmm1.StateTransitionProbabilities[0, 2] = .5;
+            hmm1.StateTransitionProbabilities.SetRow(0, new Double[] { 0, .5, .5 });
 
-            hmm1.SymbolEmissionProbabilities[0].SetRow(1, new Double[] { 1, 0});
-            hmm1.SymbolEmissionProbabilities[0].SetRow(2, new Double[] { 0, 1});
+            hmm1.SymbolEmissionProbabilities[0].SetRow(1, new Double[] { 1, 0 });
+            hmm1.SymbolEmissionProbabilities[0].SetRow(2, new Double[] { 0, 1 });
             hmm1.SymbolEmissionProbabilities[1].SetRow(1, new Double[] { 1, 0 });
             hmm1.SymbolEmissionProbabilities[2].SetRow(2, new Double[] { 0, 1 });
 
