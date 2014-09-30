@@ -63,11 +63,11 @@ namespace HMM
             Func<int, int, double> forward = null;
             forward = (time, state)=>
             {
-                if (time == -1) return IntialStateProbabilities[state].Log();
+                if (time == 0) return IntialStateProbabilities[state].Log();
                 return States.Select(
                     (trash, s) => forward(time - 1, s)
                     + StateTransitionProbabilities[s, state].Log()
-                    + SymbolEmissionProbabilities[s][state, outputSequence[time]].Log())
+                    + SymbolEmissionProbabilities[s][state, outputSequence[time-1]].Log())
                 .LogSum();
             };
             return forward.Memorize();
@@ -84,7 +84,7 @@ namespace HMM
             Func<int, int, double> backward = null;
             backward = (time, state)=>
             {
-                if(time == outputSequence.Length) return (1.0).Log();
+                if(time == outputSequence.Length) return 0; //aka (1.0).Log();
                 return States.Select(
                     (trash, s) => backward(time + 1, s)
                     + StateTransitionProbabilities[state, s].Log()
