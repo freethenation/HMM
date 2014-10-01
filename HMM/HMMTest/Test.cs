@@ -82,10 +82,9 @@ namespace HMMTest
         public void ViterbiPathTest()
         {
             InitHmm1();
-            var orig = hmm1.ViterbiPath("A", "A", "A").ToArray();
-            var origProb = orig.Last().Item3.Exp();
-            var ret = hmm1.ViterbiPath("A", "A", "A").Select(i => i.Item2).ToArray();
-            Assert.AreEqual(new int[] {0, 1, 1, 1}, ret);
+            var ret = hmm1.ViterbiPath("A", "A", "A");
+            Assert.AreEqual(.5, ret.Last().Item3.Exp());
+            Assert.AreEqual(new int[] {0, 1, 1, 1}, ret.Select(i => i.Item2).ToArray());
         }
 	}
 }
