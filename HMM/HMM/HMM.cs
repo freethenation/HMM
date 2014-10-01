@@ -110,7 +110,6 @@ namespace HMM
             };
             return viterbi.Memorize();
         }
-        /// <returns>(time, state)=></returns>
         public IEnumerable<ViterbiStep> ViterbiPath(params string[] outputSequence)
         {
             return ViterbiPath(outputSequence.Select(i => this.Alphabet[i]).ToArray());
