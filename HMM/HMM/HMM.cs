@@ -53,13 +53,11 @@ namespace HMM
                                                                 States.First(i => badEmissionProb.Item1 == i.Value).Key,
                                                                 States.First(i => badEmissionProb.Item2 == i.Value).Key));
 		}
-        /// <returns>(time, state)=></returns>
         public HMMTrellisFunc<string, double> ForwardFunc(params string[] outputSequence)
 		{
             return (time, state) => 
                 ForwardFunc(outputSequence.Select(i => this.Alphabet[i]).ToArray())(time, States[state]);
 		}
-        /// <returns>(time, state)=></returns>
         public HMMTrellisFunc<int, double> ForwardFunc(params int[] outputSequence)
 		{
             HMMTrellisFunc<int, double> forward = null;
@@ -74,13 +72,11 @@ namespace HMM
             };
             return forward.Memorize();
 		}
-        /// <returns>(time, state)=></returns>
         public HMMTrellisFunc<string, double> BackwardFunc(params string[] outputSequence)
         {
             return (time, state) => 
                 BackwardFunc(outputSequence.Select(i => this.Alphabet[i]).ToArray())(time, States[state]);
         }
-        /// <returns>(time, state)=></returns>
         public HMMTrellisFunc<int, double> BackwardFunc(params int[] outputSequence)
         {
             HMMTrellisFunc<int, double> backward = null;
@@ -95,7 +91,6 @@ namespace HMM
             };
             return backward.Memorize();
         }
-        /// <returns>(time, state)=></returns>
         protected HMMTrellisFunc<int, ViterbiStep> ViterbiFunc(params int[] outputSequence)
         {
             HMMTrellisFunc<int, ViterbiStep> viterbi = null;
