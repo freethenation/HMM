@@ -24,6 +24,24 @@ namespace HMM
 				func(item);
 			}
 		}
+        public static T Largest<T, TC>(this IEnumerable<T> enumerable, Func<T, TC> func) where TC : IComparable
+        {
+            var e = enumerable.GetEnumerator();
+            if (!e.MoveNext())
+                throw new System.ArgumentException("No elements in IEnumerable");
+            T ele = e.Current;
+            TC max = func(e.Current);
+            while (e.MoveNext())
+            {
+                TC currMax = func(e.Current);
+                if (currMax.CompareTo(max) > 0)
+                {
+                    ele = e.Current;
+                    max = currMax;
+                }
+            }
+            return ele;
+        }
         public static Dictionary<TK, TV> ToDictionary<TK, TV>(this IEnumerable<KeyValuePair<TK, TV>> enumerable)
         {
             return enumerable.ToDictionary(i => i.Key, i => i.Value);

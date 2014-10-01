@@ -93,6 +93,23 @@ namespace HMM
             };
             return backward.Memorize();
         }
+        /// <returns>(time, state)=></returns>
+        public Func<int, int, Tuple<int, double>> ViterbiFunc(params int[] outputSequence)
+        {
+            Func<int, int, Tuple<int, double>> viterbi = null;
+            viterbi = (time, state) =>
+            {
+                if(time == 0) return Tuple.Create(state, this.IntialStateProbabilities[state]);
+                return States
+                    .Select((trash, s) => 
+                        Tuple.Create(s, 
+                            viterbi(time -1, s).Item2 + StateTransitionProbabilities[s, state].Log()
+                                + SymbolEmissionProbabilities[s][state, outputSequence[time-1]].Log()
+                        ))
+                    .Largest(i=> i.Item2);
+            };
+            return viterbi.Memorize();
+        }
 	}
 }
 

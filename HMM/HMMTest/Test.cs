@@ -3,9 +3,28 @@ using System;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using HMM;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HMMTest
 {
+    [TestFixture()]
+    public class UtilTests
+    {
+        [Test()]
+        public void TestLargestBasic()
+        {
+            Assert.AreEqual("8", (new Tuple<string, int>[] { Tuple.Create("5", 5), Tuple.Create("8", 8), Tuple.Create("6", 6) }).Largest(i => i.Item2).Item1);
+        }
+
+        public void TestLargestEmptyIEnumerable()
+        {
+            try { (new Double[] { }).Largest(i => i); }
+            catch (ArgumentException) { return; }
+            Assert.True(false, "Should have returned in the catch");
+        }
+    }
+
 	[TestFixture()]
 	public class HMMTests
 	{
