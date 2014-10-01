@@ -83,8 +83,8 @@ namespace HMMTest
         {
             InitHmm1();
             var ret = hmm1.ViterbiPath("A", "A", "A");
-            Assert.AreEqual(.5, ret.Last().Item3.Exp());
-            Assert.AreEqual(new int[] {0, 1, 1, 1}, ret.Select(i => i.Item2).ToArray());
+            Assert.AreEqual(.5, ret.Last().Probability);
+            Assert.AreEqual(new int[] {0, 1, 1, 1}, ret.Select(i => i.ToState).ToArray());
         }
 	}
 }
