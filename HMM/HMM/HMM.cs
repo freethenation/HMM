@@ -6,6 +6,8 @@ using System.Collections.Generic;
 
 namespace HMM
 {
+    public delegate TRETURN HMMTrellisFunc<TSTATE, TRETURN>(int time, TSTATE state);
+
 	public class HMM
 	{
         public Vector<double> IntialStateProbabilities;
@@ -52,15 +54,15 @@ namespace HMM
                                                                 States.First(i => badEmissionProb.Item2 == i.Value).Key));
 		}
         /// <returns>(time, state)=></returns>
-        public Func<int, string, double> ForwardFunc(params string[] outputSequence)
+        public HMMTrellisFunc<string, double> ForwardFunc(params string[] outputSequence)
 		{
             return (time, state) => 
                 ForwardFunc(outputSequence.Select(i => this.Alphabet[i]).ToArray())(time, States[state]);
 		}
         /// <returns>(time, state)=></returns>
-        public Func<int, int, double> ForwardFunc(params int[] outputSequence)
+        public HMMTrellisFunc<int, double> ForwardFunc(params int[] outputSequence)
 		{
-            Func<int, int, double> forward = null;
+            HMMTrellisFunc<int, double> forward = null;
             forward = (time, state)=>
             {
                 if (time == 0) return IntialStateProbabilities[state].Log();
@@ -73,15 +75,15 @@ namespace HMM
             return forward.Memorize();
 		}
         /// <returns>(time, state)=></returns>
-        public Func<int, string, double> BackwardFunc(params string[] outputSequence)
+        public HMMTrellisFunc<string, double> BackwardFunc(params string[] outputSequence)
         {
             return (time, state) => 
                 BackwardFunc(outputSequence.Select(i => this.Alphabet[i]).ToArray())(time, States[state]);
         }
         /// <returns>(time, state)=></returns>
-        public Func<int, int, double> BackwardFunc(params int[] outputSequence)
+        public HMMTrellisFunc<int, double> BackwardFunc(params int[] outputSequence)
         {
-            Func<int, int, double> backward = null;
+            HMMTrellisFunc<int, double> backward = null;
             backward = (time, state)=>
             {
                 if(time == outputSequence.Length) return 0; //aka (1.0).Log();
@@ -94,9 +96,9 @@ namespace HMM
             return backward.Memorize();
         }
         /// <returns>(time, state)=></returns>
-        public Func<int, int, ViterbiStep> ViterbiFunc(params int[] outputSequence)
+        protected HMMTrellisFunc<int, ViterbiStep> ViterbiFunc(params int[] outputSequence)
         {
-            Func<int, int, ViterbiStep> viterbi = null;
+            HMMTrellisFunc<int, ViterbiStep> viterbi = null;
             viterbi = (time, state) =>
             {
                 if(time == 0) return new ViterbiStep(-1, state, this.IntialStateProbabilities[state].Log());

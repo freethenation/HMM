@@ -94,13 +94,13 @@ namespace HMM
             foreach (var i in enumerable) ret = ret.LogAdd(i);
             return ret;
         }
-        public static Func<T1, T2, TResult> Memorize<T1, T2, TResult>(this Func<T1, T2, TResult> func)
+        public static HMMTrellisFunc<TSTATE, TRETURN> Memorize<TSTATE, TRETURN>(this HMMTrellisFunc<TSTATE, TRETURN> func)
         {
-            var cache = new Dictionary<Tuple<T1,T2>, TResult>();
+            var cache = new Dictionary<Tuple<int,TSTATE>, TRETURN>();
             return (arg1, arg2) =>
             {
                 var tuple = Tuple.Create(arg1, arg2);
-                TResult ret;
+                TRETURN ret;
                 if(cache.TryGetValue(tuple, out ret)) return ret;
                 ret = func(arg1, arg2);
                 cache[tuple] = ret;
