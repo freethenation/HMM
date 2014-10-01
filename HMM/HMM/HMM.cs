@@ -99,7 +99,7 @@ namespace HMM
             Func<int, int, Tuple<int, int, double>> viterbi = null;
             viterbi = (time, state) =>
             {
-                if(time == 0) return Tuple.Create(-1, state, this.IntialStateProbabilities[state]);
+                if(time == 0) return Tuple.Create(-1, state, this.IntialStateProbabilities[state].Log());
                 return States
                     .Select((trash, s) => 
                         Tuple.Create(s, state,
