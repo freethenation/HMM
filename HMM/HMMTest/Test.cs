@@ -77,6 +77,14 @@ namespace HMMTest
             Assert.AreEqual(0, hmm1.BackwardFunc("B", "B", "B")(1, "Final1").Exp());
             Assert.AreEqual(1, hmm1.BackwardFunc("B", "B", "B")(2, "Final2").Exp());
         }
+
+        [Test()]
+        public void ViterbiPathTest()
+        {
+            InitHmm1();
+            var ret = hmm1.ViterbiPath("A", "A", "A").Select(i => i.Item2).ToArray();
+            Assert.AreEqual(new int[] {0, 1, 1, 1}, ret);
+        }
 	}
 }
 

@@ -94,21 +94,37 @@ namespace HMM
             return backward.Memorize();
         }
         /// <returns>(time, state)=></returns>
-        public Func<int, int, Tuple<int, double>> ViterbiFunc(params int[] outputSequence)
+        public Func<int, int, Tuple<int, int, double>> ViterbiFunc(params int[] outputSequence)
         {
-            Func<int, int, Tuple<int, double>> viterbi = null;
+            Func<int, int, Tuple<int, int, double>> viterbi = null;
             viterbi = (time, state) =>
             {
-                if(time == 0) return Tuple.Create(state, this.IntialStateProbabilities[state]);
+                if(time == 0) return Tuple.Create(-1, state, this.IntialStateProbabilities[state]);
                 return States
                     .Select((trash, s) => 
-                        Tuple.Create(s, 
-                            viterbi(time -1, s).Item2 + StateTransitionProbabilities[s, state].Log()
+                        Tuple.Create(s, state,
+                            viterbi(time -1, s).Item3 + StateTransitionProbabilities[s, state].Log()
                                 + SymbolEmissionProbabilities[s][state, outputSequence[time-1]].Log()
                         ))
-                    .Largest(i=> i.Item2);
+                    .Largest(i=> i.Item3);
             };
             return viterbi.Memorize();
+        }
+        /// <returns>(time, state)=></returns>
+        public IEnumerable<Tuple<int, int, double>> ViterbiPath(params string[] outputSequence)
+        {
+            return ViterbiPath(outputSequence.Select(i => this.Alphabet[i]).ToArray());
+        }
+        public IEnumerable<Tuple<int, int, double>> ViterbiPath(params int[] outputSequence)
+        {
+            var viterbiFunc = this.ViterbiFunc(outputSequence);
+            List<Tuple<int, int, double>> ret = new List<Tuple<int, int, double>>();
+            ret.Add(States.Select((trash, s) => viterbiFunc(outputSequence.Length, s)).Largest(i => i.Item3));
+            foreach (var time in Util.Range(0, outputSequence.Length).Reverse())
+            {
+                ret.Insert(0, viterbiFunc(time, ret[0].Item1));
+            }
+            return ret;
         }
 	}
 }

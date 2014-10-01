@@ -18,12 +18,28 @@ namespace HMM
 		{
 			return Range(0, end);
 		}
+        public static void ForEach<T>(this IEnumerable<T> enumerable)
+        {
+            foreach (var item in enumerable) { }
+        }
 		public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> func)
 		{
 			foreach (var item in enumerable) {
 				func(item);
 			}
 		}
+        public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T, int> func)
+        {
+            int index = 0;
+            foreach (var item in enumerable) {
+                func(item, index);
+                index++;
+            }
+        }
+        public static IEnumerable<Tuple<T, int>> Enumerate<T>(this IEnumerable<T> enumerable)
+        {
+            return enumerable.Select((item, index) => Tuple.Create(item, index));
+        }
         public static T Largest<T, TC>(this IEnumerable<T> enumerable, Func<T, TC> func) where TC : IComparable
         {
             var e = enumerable.GetEnumerator();
