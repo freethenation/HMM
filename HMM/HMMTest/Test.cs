@@ -73,18 +73,29 @@ namespace HMMTest
             zakHmm1.Validate();
         }
 
-        [Test()]
-        public void InitZakHmm1Test()
-        { 
-            InitZakHmm1();
-        }
-
 		[Test()]
 		public void ConstrTest()
 		{
             (new HMM.HMM(new string[3] { "In1", "Out1", "Out2" }, new string[2] { "Out1", "Out2" })).Validate();
-
 		}
+
+        [Test()]
+        public void ZakForwardTest()
+        {
+            InitZakHmm1();
+
+            var forwardFunc = zakHmm1.ForwardFunc("Wet", "Dry", "Damp", "Dry", "Damp", "Wet");
+            Assert.AreEqual(0, forwardFunc(1, "Sun").Exp()); //It was wet at time 0 therefore it can not be sunny yet
+            var f1 = forwardFunc(1, "Rain").Exp();
+            var f3 = forwardFunc(1, "Cloud").Exp();
+            Assert.AreEqual(.25, forwardFunc(0, "Rain").Exp()); //Just intial prob of rain
+            Assert.AreEqual(0, forwardFunc(2, "Cloud").Exp()); //It was dry last symbol and cloud cant go to cloud so we have to be rainy
+            //Assert.AreEqual(1, forwardFunc(2, "Rain").Exp());
+            var t2 = forwardFunc(2, "Rain").Exp();
+            var t3 = forwardFunc(2, "Sun").Exp();
+            var t4 = forwardFunc(2, "Cloud").Exp();
+            var i = 1;
+        }
 
         [Test()]
         public void ForwardTest()
