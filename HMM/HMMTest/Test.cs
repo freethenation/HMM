@@ -86,22 +86,53 @@ namespace HMMTest
             (new HMM.HMM(new string[3] { "In1", "Out1", "Out2" }, new string[2] { "Out1", "Out2" })).Validate();
 		}
 
+        public void AssertAlmostEqual(double expected, double actual)
+        {
+            if (expected == actual)
+                return;
+            if (!expected.AlmostEqual(actual, Math.Min(.001, Math.Max(Math.Abs(expected), Math.Abs(actual)) * 0.01)))
+                Assert.Fail(String.Format("expected {0} does not almost equal {1}", expected, actual));
+        }
+
         [Test()]
         public void ZakForwardTest()
         {
             InitZakHmm1();
 
             var forwardFunc = zakHmm1.ForwardFunc("Wet", "Dry", "Damp", "Dry", "Damp", "Wet");
-            Assert.AreEqual(0, forwardFunc(1, "Sun").Exp()); //It was wet at time 0 therefore it can not be sunny yet
-            var f1 = forwardFunc(1, "Rain").Exp();
-            var f3 = forwardFunc(1, "Cloud").Exp();
             Assert.AreEqual(.25, forwardFunc(0, "Rain").Exp()); //Just intial prob of rain
-            Assert.AreEqual(0, forwardFunc(2, "Cloud").Exp()); //It was dry last symbol and cloud cant go to cloud so we have to be rainy
-            //Assert.AreEqual(1, forwardFunc(2, "Rain").Exp());
-            var t2 = forwardFunc(2, "Rain").Exp();
-            var t3 = forwardFunc(2, "Sun").Exp();
-            var t4 = forwardFunc(2, "Cloud").Exp();
-            var i = 1;
+
+            AssertAlmostEqual(0.000000, forwardFunc(1, "Sun").Exp()); //It was wet at time 0 therefore it can not be sunny yet
+            AssertAlmostEqual(0.307500, forwardFunc(1, "Rain").Exp());
+            AssertAlmostEqual(0.037500, forwardFunc(1, "Cloud").Exp());
+
+            AssertAlmostEqual(0.005625, forwardFunc(2, "Rain").Exp());
+            AssertAlmostEqual(0.009375, forwardFunc(2, "Sun").Exp());
+            AssertAlmostEqual(0.000000, forwardFunc(2, "Cloud").Exp());
+
+            AssertAlmostEqual(.1378e-4 , forwardFunc(5, "Rain").Exp());
+            AssertAlmostEqual(0.000000, forwardFunc(5, "Sun").Exp());
+            AssertAlmostEqual(4.59e-5 , forwardFunc(5, "Cloud").Exp());
+        }
+
+        [Test()]
+        public void ZakBackwardTest()
+        {
+            InitZakHmm1();
+
+            var backwardFunc = zakHmm1.BackwardFunc("Wet", "Dry", "Damp", "Dry", "Damp", "Wet");
+
+            AssertAlmostEqual(0.001034, backwardFunc(1, "Sun").Exp()); //It was wet at time 0 therefore it can not be sunny yet
+            AssertAlmostEqual(0.000000, backwardFunc(1, "Rain").Exp());
+            AssertAlmostEqual(0.000654, backwardFunc(1, "Cloud").Exp());
+
+            AssertAlmostEqual(0.002803, backwardFunc(2, "Rain").Exp());
+            AssertAlmostEqual(0.000934, backwardFunc(2, "Sun").Exp());
+            AssertAlmostEqual(0.003862, backwardFunc(2, "Cloud").Exp());
+
+            AssertAlmostEqual(0.780000, backwardFunc(5, "Rain").Exp());
+            AssertAlmostEqual(0.000000, backwardFunc(5, "Sun").Exp());
+            AssertAlmostEqual(0.300000, backwardFunc(5, "Cloud").Exp());
         }
 
         [Test()]
