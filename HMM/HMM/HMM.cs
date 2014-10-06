@@ -89,8 +89,8 @@ namespace HMM
             backward = (time, state)=>
             {
                 if(time == outputSequence.Length) return 0; //aka (1.0).Log();
-                return States.Select(
-                    (trash, s) => backward(time + 1, s)
+                return Util.Range(States.Count).Select(
+                    (s) => backward(time + 1, s)
                     + StateTransitionProbabilities[state, s].Log()
                     + SymbolEmissionProbabilities[state][s, outputSequence[time]].Log())
                 .LogSum();
