@@ -81,7 +81,7 @@ namespace HMM
                 BackwardFunc(outputSequence.Select(i => this.Alphabet[i]).ToArray())(time, States[state]);
         }
         /// <summary>
-        /// The joint probabilty of being in a specific state at time t AND seening the observations t+1..T
+        /// The probabilty of seeing the observations t+1...T given we are in a specific state at time t
         /// </summary>
         public HMMTrellisFunc<int, double> BackwardFunc(params int[] outputSequence)
         {
