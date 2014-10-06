@@ -54,6 +54,13 @@ namespace HMMTest
             hmm1.Validate();
         }
 
+        [Test()]
+        public void LogAddTest()
+        {
+            Assert.True(Util.LogAdd(Util.Log(20), Util.Log(60)).Exp().AlmostEqual(80, .1));
+            Assert.True((new Double[] { Util.Log(20), Util.Log(60), Util.Log(20) }).LogSum().Exp().AlmostEqual(100, .1));
+        }
+
         public void InitZakHmm1()
         {
             zakHmm1 = new HMM.HMM(new string[] { "Sun", "Cloud", "Rain" }, new string[] { "Wet", "Damp", "Dry" });

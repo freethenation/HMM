@@ -58,14 +58,17 @@ namespace HMM
             return (time, state) => 
                 ForwardFunc(outputSequence.Select(i => this.Alphabet[i]).ToArray())(time, States[state]);
 		}
+        /// <summary>
+        /// The joint probabilty of being in a specific state at time t AND having seen observations O..t-1
+        /// </summary>
         public HMMTrellisFunc<int, double> ForwardFunc(params int[] outputSequence)
 		{
             HMMTrellisFunc<int, double> forward = null;
             forward = (time, state)=>
             {
                 if (time == 0) return IntialStateProbabilities[state].Log();
-                return States.Select(
-                    (trash, s) => forward(time - 1, s)
+                return Util.Range(States.Count).Select(
+                    (s) => forward(time - 1, s)
                     + StateTransitionProbabilities[s, state].Log()
                     + SymbolEmissionProbabilities[s][state, outputSequence[time-1]].Log())
                 .LogSum();
