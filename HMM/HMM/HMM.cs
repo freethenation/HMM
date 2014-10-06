@@ -16,7 +16,7 @@ namespace HMM
         public Dictionary<string, int> States;
         public Dictionary<string, int> Alphabet;
 
-		public HMM (IEnumerable<string> states, IEnumerable<string> alphabet)
+		public HMM(IEnumerable<string> states, IEnumerable<string> alphabet)
 		{
 			States = states.Select((str, i) => new KeyValuePair<string,int>(str, i)).ToDictionary();
             Alphabet = alphabet.Select((str, i) => new KeyValuePair<string,int>(str, i)).ToDictionary();
@@ -91,7 +91,7 @@ namespace HMM
             };
             return backward.Memorize();
         }
-        protected HMMTrellisFunc<int, ViterbiStep> ViterbiFunc(params int[] outputSequence)
+        private HMMTrellisFunc<int, ViterbiStep> ViterbiFunc(params int[] outputSequence)
         {
             HMMTrellisFunc<int, ViterbiStep> viterbi = null;
             viterbi = (time, state) =>
@@ -121,6 +121,72 @@ namespace HMM
                 ret.Insert(0, viterbiFunc(time, ret[0].FromState));
             }
             return ret;
+        }
+        public HMMParameterEstimator CreateParameterEstimator(params string[] outputSequence)
+        {
+            return CreateParameterEstimator(outputSequence.Select(i => this.Alphabet[i]).ToArray());
+        }
+        public HMMParameterEstimator CreateParameterEstimator(params int[] outputSequence)
+        {
+            return new HMMParameterEstimator(this, outputSequence);
+        }
+        public void SetSymbolEmissionProbabilities(int fromState, int toState, IDictionary<string, double> alphabetProbabilities)
+        {
+            SymbolEmissionProbabilities[fromState].ClearRow(toState);
+            foreach (var alphabetProbability in alphabetProbabilities)
+            {
+                SymbolEmissionProbabilities[fromState][toState, Alphabet[alphabetProbability.Key]] = alphabetProbability.Value;
+            }
+        }
+        public class HMMParameterEstimator
+        {
+            public readonly HMM Parent;
+            public readonly int[] OutputSequence;
+            public readonly HMMTrellisFunc<int, double> ForwardFunc;
+            public readonly HMMTrellisFunc<int, double> BackwardFunc;
+
+            public HMMParameterEstimator(HMM parentHMM, params int[] outputSequence)
+            {
+                Parent = parentHMM;
+                OutputSequence = outputSequence;
+                ForwardFunc = Parent.ForwardFunc(OutputSequence);
+                BackwardFunc = Parent.BackwardFunc(OutputSequence);
+            }
+
+            public double ProbabilityOfOutput(int time)
+            {
+               return Parent.States
+                    .Select((trash, state) => ForwardFunc(time, state) * BackwardFunc(time, state))
+                    .LogSum();
+            }
+
+            public double ExpectedNumberOfTransitions(int time, int fromState, int toState)
+            {
+                return ForwardFunc(time, fromState) 
+                    + Parent.StateTransitionProbabilities[fromState, toState].Log()
+                    + Parent.SymbolEmissionProbabilities[fromState][toState, OutputSequence[time]].Log()
+                    + BackwardFunc(time, toState)
+                    - ProbabilityOfOutput(time);
+            }
+            public double TotalExpectedNumberOfTransitions(int fromState, int toState)
+            {
+                return OutputSequence
+                    .Select((trash, time) => ExpectedNumberOfTransitions(time, fromState, toState))
+                    .LogSum();
+            }
+
+            public double ExpectedNumberOfTransitions(int time, int toState)
+            {
+                return Parent.States
+                    .Select((trash, state) => ExpectedNumberOfTransitions(time, state, toState))
+                    .LogSum();
+            }
+            public double TotalExpectedNumberOfTransitions(int toState)
+            {
+                return OutputSequence
+                    .Select((trash, time) => ExpectedNumberOfTransitions(time, toState))
+                    .LogSum();
+            }            
         }
 	}
 }
