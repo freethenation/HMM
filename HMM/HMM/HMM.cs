@@ -88,11 +88,11 @@ namespace HMM
             HMMTrellisFunc<int, double> backward = null;
             backward = (time, state)=>
             {
-                if(time == outputSequence.Length) return 0; //aka (1.0).Log();
+                if(time == outputSequence.Length - 1) return 0; //aka (1.0).Log();
                 return Util.Range(States.Count).Select(
                     (s) => backward(time + 1, s)
                     + StateTransitionProbabilities[state, s].Log()
-                    + SymbolEmissionProbabilities[state][s, outputSequence[time]].Log())
+                    + SymbolEmissionProbabilities[state][s, outputSequence[time + 1]].Log())
                 .LogSum();
             };
             return backward.Memorize();
