@@ -70,7 +70,7 @@ namespace HMMTest
             zakHmm1.StateTransitionProbabilities.SetRow(1, new Double[] { .5, 0, .5 });
             zakHmm1.StateTransitionProbabilities.SetRow(2, new Double[] { 0, .3, .7 });
 
-            zakHmm1.SetSymbolEmissionProbabilities(0, 1, new Dict() { {"Damp",.5}, {"Dry",.5} });
+            zakHmm1.SetSymbolEmissionProbabilities(0, 1, new Dict() { {"Damp", .1}, {"Dry", .9} });
             zakHmm1.SetSymbolEmissionProbabilities(0, 0, new Dict() { {"Dry",1} });
             zakHmm1.SetSymbolEmissionProbabilities(1, 0, new Dict() { {"Damp",.5}, {"Dry", .5} });
             zakHmm1.SetSymbolEmissionProbabilities(1, 2, new Dict() { {"Dry", .3}, {"Wet", .6}, {"Damp", .1} });
@@ -110,9 +110,14 @@ namespace HMMTest
             AssertAlmostEqual(0.009375, forwardFunc(2, "Sun").Exp());
             AssertAlmostEqual(0.000000, forwardFunc(2, "Cloud").Exp());
 
-            AssertAlmostEqual(.1378e-4 , forwardFunc(5, "Rain").Exp());
+
+            AssertAlmostEqual(0.234375e-3, forwardFunc(4, "Sun").Exp());
+            AssertAlmostEqual(0.000000 , forwardFunc(4, "Cloud").Exp());
+            AssertAlmostEqual(.140625e-3 , forwardFunc(4, "Rain").Exp());
+
             AssertAlmostEqual(0.000000, forwardFunc(5, "Sun").Exp());
-            AssertAlmostEqual(4.59e-5 , forwardFunc(5, "Cloud").Exp());
+            AssertAlmostEqual(.234375e-4 , forwardFunc(5, "Cloud").Exp());
+            AssertAlmostEqual(.984e-5 , forwardFunc(5, "Rain").Exp());
         }
 
         [Test()]
@@ -122,17 +127,25 @@ namespace HMMTest
 
             var backwardFunc = zakHmm1.BackwardFunc("Wet", "Dry", "Damp", "Dry", "Damp", "Wet");
 
-            AssertAlmostEqual(0.001034, backwardFunc(0, "Sun").Exp());
-            AssertAlmostEqual(0.000000, backwardFunc(0, "Rain").Exp());
-            AssertAlmostEqual(0.000654, backwardFunc(0, "Cloud").Exp());
+            AssertAlmostEqual(0.588375e-4, backwardFunc(0, "Rain").Exp());
+            AssertAlmostEqual(0, backwardFunc(0, "Sun").Exp());
+            AssertAlmostEqual(0, backwardFunc(0, "Cloud").Exp());
 
-            AssertAlmostEqual(0.002803, backwardFunc(1, "Rain").Exp());
-            AssertAlmostEqual(0.000934, backwardFunc(1, "Sun").Exp());
-            AssertAlmostEqual(0.003862, backwardFunc(1, "Cloud").Exp());
+            AssertAlmostEqual(0.000280, backwardFunc(1, "Sun").Exp());
+            AssertAlmostEqual(0.000000, backwardFunc(1, "Rain").Exp());
+            AssertAlmostEqual(0.000392, backwardFunc(1, "Cloud").Exp());
 
-            AssertAlmostEqual(0.780000, backwardFunc(4, "Rain").Exp());
-            AssertAlmostEqual(0.000000, backwardFunc(4, "Sun").Exp());
-            AssertAlmostEqual(0.300000, backwardFunc(4, "Cloud").Exp());
+            AssertAlmostEqual(0.002353, backwardFunc(2, "Rain").Exp());
+            AssertAlmostEqual(0.000156, backwardFunc(2, "Sun").Exp());
+            AssertAlmostEqual(0.001552, backwardFunc(2, "Cloud").Exp());
+
+            AssertAlmostEqual(0.099600, backwardFunc(4, "Rain").Exp());
+            AssertAlmostEqual(0.003000, backwardFunc(4, "Sun").Exp());
+            AssertAlmostEqual(0.039000, backwardFunc(4, "Cloud").Exp());
+
+            AssertAlmostEqual(0.780000, backwardFunc(5, "Rain").Exp());
+            AssertAlmostEqual(0.000000, backwardFunc(5, "Sun").Exp());
+            AssertAlmostEqual(0.300000, backwardFunc(5, "Cloud").Exp());
         }
 
         [Test()]
