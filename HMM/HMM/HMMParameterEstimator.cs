@@ -94,8 +94,8 @@ namespace HMM
         }
         public double TotalExpectedNumberOfTransitions(int fromState)
         {
-            return OutputSequence
-                .Select((trash, time) => ExpectedNumberOfTransitions(time, fromState))
+            return Util.Range(OutputSequence.Length)
+                .Select(time => ExpectedNumberOfTransitions(time, fromState))
                 .LogSum();
         }            
     }
