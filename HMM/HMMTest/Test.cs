@@ -31,13 +31,13 @@ namespace HMMTest
 	public class HMMTests
 	{
         HMM.HMM hmm1 = null;
-        HMM.HMM zakHmm1 = null;
+        HMM.HMM zakHmm = null;
 
         [SetUp()]
         public void Setup()
         {
             hmm1 = null;
-            zakHmm1 = null;
+            zakHmm = null;
         }
 
         public void InitHmm1()
@@ -63,21 +63,21 @@ namespace HMMTest
 
         public void InitZakHmm()
         {
-            zakHmm1 = new HMM.HMM(new string[] { "Sun", "Cloud", "Rain" }, new string[] { "Wet", "Damp", "Dry" });
-            zakHmm1.IntialStateProbabilities.SetValues(new double[] { .25, .5, .25 });
+            zakHmm = new HMM.HMM(new string[] { "Sun", "Cloud", "Rain" }, new string[] { "Wet", "Damp", "Dry" });
+            zakHmm.IntialStateProbabilities.SetValues(new double[] { .25, .5, .25 });
 
-            zakHmm1.StateTransitionProbabilities.SetRow(0, new Double[] { .9, .1, 0 });
-            zakHmm1.StateTransitionProbabilities.SetRow(1, new Double[] { .5, 0, .5 });
-            zakHmm1.StateTransitionProbabilities.SetRow(2, new Double[] { 0, .3, .7 });
+            zakHmm.StateTransitionProbabilities.SetRow(0, new Double[] { .9, .1, 0 });
+            zakHmm.StateTransitionProbabilities.SetRow(1, new Double[] { .5, 0, .5 });
+            zakHmm.StateTransitionProbabilities.SetRow(2, new Double[] { 0, .3, .7 });
 
-            zakHmm1.SetSymbolEmissionProbabilities(0, 1, new Dict() { {"Damp", .1}, {"Dry", .9} });
-            zakHmm1.SetSymbolEmissionProbabilities(0, 0, new Dict() { {"Dry",1} });
-            zakHmm1.SetSymbolEmissionProbabilities(1, 0, new Dict() { {"Damp",.5}, {"Dry", .5} });
-            zakHmm1.SetSymbolEmissionProbabilities(1, 2, new Dict() { {"Dry", .3}, {"Wet", .6}, {"Damp", .1} });
-            zakHmm1.SetSymbolEmissionProbabilities(2, 2, new Dict() { {"Wet", .9}, {"Damp", .1} });
-            zakHmm1.SetSymbolEmissionProbabilities(2, 1, new Dict() { {"Damp", .5}, {"Wet", .5} });
+            zakHmm.SetSymbolEmissionProbabilities(0, 1, new Dict() { {"Damp", .1}, {"Dry", .9} });
+            zakHmm.SetSymbolEmissionProbabilities(0, 0, new Dict() { {"Dry",1} });
+            zakHmm.SetSymbolEmissionProbabilities(1, 0, new Dict() { {"Damp",.5}, {"Dry", .5} });
+            zakHmm.SetSymbolEmissionProbabilities(1, 2, new Dict() { {"Dry", .3}, {"Wet", .6}, {"Damp", .1} });
+            zakHmm.SetSymbolEmissionProbabilities(2, 2, new Dict() { {"Wet", .9}, {"Damp", .1} });
+            zakHmm.SetSymbolEmissionProbabilities(2, 1, new Dict() { {"Damp", .5}, {"Wet", .5} });
 
-            zakHmm1.Validate();
+            zakHmm.Validate();
         }
 
 		[Test()]
@@ -95,22 +95,22 @@ namespace HMMTest
         }
 
         [Test()]
-        public void ZakForwardBackwardTest()
+        public void ForwardBackwardTest()
         {
             InitZakHmm();
             var symbols = (new string[] { "Wet", "Dry", "Damp", "Dry", "Damp", "Wet" })
-                .Select(i => zakHmm1.Alphabet[i])
+                .Select(i => zakHmm.Alphabet[i])
                     .ToArray();
-            var forwardFunc = zakHmm1.ForwardFunc(symbols);
-            var backwardFunc = zakHmm1.BackwardFunc(symbols);
+            var forwardFunc = zakHmm.ForwardFunc(symbols);
+            var backwardFunc = zakHmm.BackwardFunc(symbols);
 
-            double combined = Util.Range(zakHmm1.States.Count)
+            double combined = Util.Range(zakHmm.States.Count)
                 .Select(state => forwardFunc(3, state) + backwardFunc(3, state))
                 .LogSum();
-            double backward = Util.Range(zakHmm1.States.Count)
+            double backward = Util.Range(zakHmm.States.Count)
                 .Select(state => forwardFunc(0, state) + backwardFunc(0, state))
                 .LogSum();
-            double forward = Util.Range(zakHmm1.States.Count)
+            double forward = Util.Range(zakHmm.States.Count)
                 .Select(state => forwardFunc(6, state))
                 .LogSum();
 
@@ -124,7 +124,7 @@ namespace HMMTest
         {
             InitZakHmm();
 
-            var forwardFunc = zakHmm1.ForwardFunc("Wet", "Dry", "Damp", "Dry", "Damp", "Wet");
+            var forwardFunc = zakHmm.ForwardFunc("Wet", "Dry", "Damp", "Dry", "Damp", "Wet");
             Assert.AreEqual(.25, forwardFunc(0, "Rain").Exp()); //Just intial prob of rain
 
             AssertAlmostEqual(0.000000, forwardFunc(1, "Sun").Exp()); //It was wet at time 0 therefore it can not be sunny yet
@@ -150,7 +150,7 @@ namespace HMMTest
         {
             InitZakHmm();
 
-            var backwardFunc = zakHmm1.BackwardFunc("Wet", "Dry", "Damp", "Dry", "Damp", "Wet");
+            var backwardFunc = zakHmm.BackwardFunc("Wet", "Dry", "Damp", "Dry", "Damp", "Wet");
 
             AssertAlmostEqual(0.588375e-4, backwardFunc(0, "Rain").Exp());
             AssertAlmostEqual(0, backwardFunc(0, "Sun").Exp());
