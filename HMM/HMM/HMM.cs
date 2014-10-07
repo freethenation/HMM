@@ -121,8 +121,9 @@ namespace HMM
                 return States.Values
                     .Select(fromState => 
                         new ViterbiStep(fromState, state,
-                            viterbi(time -1, fromState).LogProbability + StateTransitionProbabilities[fromState, state].Log()
-                            + SymbolEmissionProbabilities[fromState][state, outputSequence[time-1]].Log()
+                            viterbi(time-1, fromState).LogProbability 
+                                + StateTransitionProbabilities[fromState, state].Log()
+                                + SymbolEmissionProbabilities[fromState][state, outputSequence[time-1]].Log()
                         ))
                     .Largest(viterbiStep => viterbiStep.LogProbability);
             };
