@@ -124,7 +124,7 @@ namespace HMM
                             viterbi(time -1, fromState).LogProbability + StateTransitionProbabilities[fromState, state].Log()
                             + SymbolEmissionProbabilities[fromState][state, outputSequence[time-1]].Log()
                         ))
-                    .Largest(i=> i.LogProbability);
+                    .Largest(viterbiStep => viterbiStep.LogProbability);
             };
             return viterbi.Memorize();
         }
