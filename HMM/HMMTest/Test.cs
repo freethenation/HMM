@@ -61,7 +61,7 @@ namespace HMMTest
             Assert.True((new Double[] { Util.Log(20), Util.Log(60), Util.Log(20) }).LogSum().Exp().AlmostEqual(100, .1));
         }
 
-        public void InitZakHmm1()
+        public void InitZakHmm()
         {
             zakHmm1 = new HMM.HMM(new string[] { "Sun", "Cloud", "Rain" }, new string[] { "Wet", "Damp", "Dry" });
             zakHmm1.IntialStateProbabilities.SetValues(new double[] { .25, .5, .25 });
@@ -95,9 +95,34 @@ namespace HMMTest
         }
 
         [Test()]
+        public void ZakForwardBackwardTest()
+        {
+            InitZakHmm();
+            var symbols = (new string[] { "Wet", "Dry", "Damp", "Dry", "Damp", "Wet" })
+                .Select(i => zakHmm1.Alphabet[i])
+                    .ToArray();
+            var forwardFunc = zakHmm1.ForwardFunc(symbols);
+            var backwardFunc = zakHmm1.BackwardFunc(symbols);
+
+            double combined = Util.Range(zakHmm1.States.Count)
+                .Select(state => forwardFunc(3, state) + backwardFunc(3, state))
+                .LogSum();
+            double backward = Util.Range(zakHmm1.States.Count)
+                .Select(state => forwardFunc(0, state) + backwardFunc(0, state))
+                .LogSum();
+            double forward = Util.Range(zakHmm1.States.Count)
+                .Select(state => forwardFunc(6, state))
+                .LogSum();
+
+            AssertAlmostEqual(backward, forward);
+            AssertAlmostEqual(combined, backward);
+            AssertAlmostEqual(combined, forward);
+        }
+
+        [Test()]
         public void ZakForwardTest()
         {
-            InitZakHmm1();
+            InitZakHmm();
 
             var forwardFunc = zakHmm1.ForwardFunc("Wet", "Dry", "Damp", "Dry", "Damp", "Wet");
             Assert.AreEqual(.25, forwardFunc(0, "Rain").Exp()); //Just intial prob of rain
@@ -123,7 +148,7 @@ namespace HMMTest
         [Test()]
         public void ZakBackwardTest()
         {
-            InitZakHmm1();
+            InitZakHmm();
 
             var backwardFunc = zakHmm1.BackwardFunc("Wet", "Dry", "Damp", "Dry", "Damp", "Wet");
 
@@ -158,7 +183,6 @@ namespace HMMTest
             Assert.AreEqual(.5, hmm1.ForwardFunc("B", "B", "B")(2, "Final2").Exp());
         }
 
-        /*
         [Test()]
         public void BackwardTest()
         {
@@ -168,7 +192,6 @@ namespace HMMTest
             Assert.AreEqual(0, hmm1.BackwardFunc("B", "B", "B")(1, "Final1").Exp());
             Assert.AreEqual(1, hmm1.BackwardFunc("B", "B", "B")(2, "Final2").Exp());
         }
-        */
 
         [Test()]
         public void ViterbiPathTest()

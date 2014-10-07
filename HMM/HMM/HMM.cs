@@ -150,6 +150,7 @@ namespace HMM
             public readonly int[] OutputSequence;
             public readonly HMMTrellisFunc<int, double> ForwardFunc;
             public readonly HMMTrellisFunc<int, double> BackwardFunc;
+            public readonly double ProbabilityOfOutput;
 
             public HMMParameterEstimator(HMM parentHMM, params int[] outputSequence)
             {
@@ -157,14 +158,12 @@ namespace HMM
                 OutputSequence = outputSequence;
                 ForwardFunc = Parent.ForwardFunc(OutputSequence);
                 BackwardFunc = Parent.BackwardFunc(OutputSequence);
-            }
-
-            public double ProbabilityOfOutput(int time)
-            {
-               return Parent.States
-                    .Select((trash, state) => ForwardFunc(time, state) * BackwardFunc(time, state))
+                ProbabilityOfOutput = Util.Range(Parent.States.Count)
+                    .Select(state => ForwardFunc(OutputSequence.Length, state))
                     .LogSum();
             }
+            //public double ProbabilityOfOutput(int time) { return Parent.States.Select((trash, state) => ForwardFunc(time, state) * BackwardFunc(time, state)).LogSum(); }
+            
 
             public double ExpectedNumberOfTransitions(int time, int fromState, int toState)
             {
@@ -172,7 +171,7 @@ namespace HMM
                     + Parent.StateTransitionProbabilities[fromState, toState].Log()
                     + Parent.SymbolEmissionProbabilities[fromState][toState, OutputSequence[time]].Log()
                     + BackwardFunc(time, toState)
-                    - ProbabilityOfOutput(time);
+                    - ProbabilityOfOutput;
             }
             public double TotalExpectedNumberOfTransitions(int fromState, int toState)
             {
