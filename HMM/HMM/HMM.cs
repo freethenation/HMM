@@ -136,9 +136,11 @@ namespace HMM
         {
             var viterbiFunc = this.ViterbiFunc(outputSequence);
             List<ViterbiStep> ret = new List<ViterbiStep>();
-            ret.Add(States.Select((trash, s) => viterbiFunc(outputSequence.Length, s)).Largest(i => i.LogProbability));
+            //Add the finial state with the largest probability
+            ret.Add(States.Values.Select(state => viterbiFunc(outputSequence.Length, state)).Largest(i => i.LogProbability));
             foreach (var time in Util.Range(outputSequence.Length).Reverse())
             {
+                //Look at the last state added and return its FromState
                 ret.Insert(0, viterbiFunc(time, ret[0].FromState));
             }
             return ret;
