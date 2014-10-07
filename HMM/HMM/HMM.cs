@@ -118,11 +118,11 @@ namespace HMM
             viterbi = (time, state) =>
             {
                 if(time == 0) return new ViterbiStep(-1, state, this.IntialStateProbabilities[state].Log());
-                return States
-                    .Select((trash, s) => 
-                        new ViterbiStep(s, state,
-                            viterbi(time -1, s).LogProbability + StateTransitionProbabilities[s, state].Log()
-                                + SymbolEmissionProbabilities[s][state, outputSequence[time-1]].Log()
+                return States.Values
+                    .Select(fromState => 
+                        new ViterbiStep(fromState, state,
+                            viterbi(time -1, fromState).LogProbability + StateTransitionProbabilities[fromState, state].Log()
+                            + SymbolEmissionProbabilities[fromState][state, outputSequence[time-1]].Log()
                         ))
                     .Largest(i=> i.LogProbability);
             };
