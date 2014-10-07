@@ -16,6 +16,7 @@ namespace HMM
         public Dictionary<string, int> States;
         public Dictionary<string, int> Alphabet;
 
+        #region Constructor
 		public HMM(IEnumerable<string> states, IEnumerable<string> alphabet)
 		{
 			States = states.Select((str, i) => new KeyValuePair<string,int>(str, i)).ToDictionary();
@@ -32,7 +33,6 @@ namespace HMM
                 SymbolEmissionProbabilities[i].SetColumn(0, Vector<double>.Build.DenseOfConstant(States.Count, 1.0));
 			}
 		}
-
 		public void Validate()
 		{
 			//validate IntialStateProbabilities
@@ -53,6 +53,12 @@ namespace HMM
                                                                 States.First(i => badEmissionProb.Item1 == i.Value).Key,
                                                                 States.First(i => badEmissionProb.Item2 == i.Value).Key));
 		}
+        #endregion
+
+        #region ForwardFunc
+        /// <summary>
+        /// The joint probabilty of being in a specific state at time t AND having seen observations O..t-1
+        /// </summary>
         public HMMTrellisFunc<string, double> ForwardFunc(params string[] outputSequence)
 		{
             return (time, state) => 
@@ -75,6 +81,12 @@ namespace HMM
             };
             return forward.Memorize();
 		}
+        #endregion
+
+        #region BackwardFunc
+        /// <summary>
+        /// The probabilty of seeing the observations t+1...T given we are in a specific state at time t
+        /// </summary>
         public HMMTrellisFunc<string, double> BackwardFunc(params string[] outputSequence)
         {
             return (time, state) => 
@@ -97,6 +109,9 @@ namespace HMM
             };
             return backward.Memorize();
         }
+        #endregion
+
+        #region ViterbiPath
         private HMMTrellisFunc<int, ViterbiStep> ViterbiFunc(params int[] outputSequence)
         {
             HMMTrellisFunc<int, ViterbiStep> viterbi = null;
@@ -128,6 +143,9 @@ namespace HMM
             }
             return ret;
         }
+        #endregion
+
+        #region Misc Helper Functions
         public HMMParameterEstimator CreateParameterEstimator(params string[] outputSequence)
         {
             return CreateParameterEstimator(outputSequence.Select(i => this.Alphabet[i]).ToArray());
@@ -136,9 +154,6 @@ namespace HMM
         {
             return new HMMParameterEstimator(this, outputSequence);
         }
-
-
-        #region Misc Helper Functions
         public void SetSymbolEmissionProbabilities(int fromState, int toState, IDictionary<string, double> alphabetProbabilities)
         {
             SymbolEmissionProbabilities[fromState].ClearRow(toState);
