@@ -230,17 +230,31 @@ namespace HMMTest
         {
             InitZakHmm();
             //var t = MathNet.Numerics.LinearAlgebra.MatrixModule.eigen<Matrix<double> , double>(zakHmm.StateTransitionProbabilities);
+            var stateDistribution = zakHmm.StateTransitionProbabilities.Power(10000).Row(0);
             int sampleSize = 100000;
-            var sample = zakHmm.SampleHmm(14).Take(sampleSize).ToArray();
-            //var sunProb = sample.Where(i => i.Symbol == i.Parent.States["Sun"]).Count() / (double)sampleSize;
-            //var cloudProb = sample.Where(i => i.Symbol == i.Parent.States["Cloud"]).Count() / (double)sampleSize;
-            //var rainProb = sample.Where(i => i.Symbol == i.Parent.States["Rain"]).Count() / (double)sampleSize;
+            var sample = zakHmm.SampleHmm(12).Take(sampleSize).ToArray();
+
+            AssertAlmostEqual(Math.Round(stateDistribution[2], 1),
+                              Math.Round(sample.Where(i => i.Symbol == i.Parent.States["Sun"]).Count() / (double)sampleSize, 1));
+            AssertAlmostEqual(Math.Round(stateDistribution[1], 1),
+                              Math.Round(sample.Where(i => i.Symbol == i.Parent.States["Cloud"]).Count() / (double)sampleSize, 1));
+            AssertAlmostEqual(Math.Round(stateDistribution[0], 1),
+                              Math.Round(sample.Where(i => i.Symbol == i.Parent.States["Rain"]).Count() / (double)sampleSize, 1));
+
             var wetProb = sample.Where(i => i.SymbolName == "Wet").Count() / (double)sampleSize;
             var dryProb = sample.Where(i => i.SymbolName == "Dry").Count() / (double)sampleSize;
             var dampProb = sample.Where(i => i.SymbolName == "Damp").Count() / (double)sampleSize;
             AssertAlmostEqual(.209, wetProb);
             AssertAlmostEqual(.698, dryProb);
             AssertAlmostEqual(.094, dampProb);
+        }
+
+        [Test()]
+        public void t()
+        {
+            InitZakHmm();
+            var matrix = zakHmm.StateTransitionProbabilities;
+            var o = matrix.Power(10000).Row(0);
         }
 
         /*
