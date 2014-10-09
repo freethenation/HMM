@@ -3,11 +3,27 @@ using System.Linq;
 using System.Collections.Generic;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.Random;
 
 namespace HMM
 {
 	public static class Util
 	{
+        public static int Choose(this RandomSource rnd, IEnumerable<double> probabilities)
+        {
+            var r = rnd.NextDouble()*-1;
+            var ret = probabilities
+                .Select((prob, index) => new { Prob = prob, Index = index })
+                .FirstOrDefault(
+                    prob => 
+                    {
+                        r += prob.Prob;
+                        return r > 0;
+                    }
+                );
+            if (ret != null) return ret.Index;
+            else return probabilities.Count() - 1; //last probability
+        }
 		public static IEnumerable<int> Range(int start, int end)
 		{
 			for (int i = start; i < end; i++) {
@@ -35,10 +51,6 @@ namespace HMM
                 func(item, index);
                 index++;
             }
-        }
-        public static IEnumerable<Tuple<T, int>> Enumerate<T>(this IEnumerable<T> enumerable)
-        {
-            return enumerable.Select((item, index) => Tuple.Create(item, index));
         }
         public static T Largest<T, TC>(this IEnumerable<T> enumerable, Func<T, TC> func) where TC : IComparable
         {

@@ -48,6 +48,7 @@
     <Compile Include="Util.cs" />
     <Compile Include="ViterbiStep.cs" />
     <Compile Include="HMMParameterEstimator.cs" />
+    <Compile Include="HMMSample.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -4,7 +4,8 @@ using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using HMM;
 using System.Collections.Generic;
-using System.Linq; 
+using System.Linq;
+using MathNet.Numerics.Random;
 
 namespace HMMTest
 {
@@ -174,6 +175,16 @@ namespace HMMTest
         }
 
         [Test()]
+        public void ZakViterbiPathTest()
+        {
+            InitZakHmm();
+            var viterbiPath = zakHmm.ViterbiPath("Wet", "Dry", "Damp", "Dry", "Damp", "Wet");
+            Assert.AreEqual(new String[] { "Rain", "Cloud", "Rain", "Cloud", "Rain", "Cloud", "Rain" }, 
+                viterbiPath.Select(i => i.ToState).Select(i => zakHmm.GetStateName(i)).ToArray());
+            AssertAlmostEqual(5.69531E-6, viterbiPath.Last().Probability);
+        }
+
+        [Test()]
         public void ForwardTest()
         {
             InitHmm1();
@@ -201,6 +212,43 @@ namespace HMMTest
             Assert.AreEqual(.5, ret.Last().Probability);
             Assert.AreEqual(new int[] {0, 1, 1, 1}, ret.Select(step => step.ToState).ToArray());
         }
+
+        [Test()]
+        public void ChooseTest()
+        {
+            var rnd = new MersenneTwister(3);
+            Assert.AreEqual(2, rnd.Choose(new double[] { .1, .2, .3, .3, .1 }));
+            Assert.AreEqual(0, rnd.Choose(new double[] { .1, .2, .3, .3, .1 }));
+            Assert.AreEqual(3, rnd.Choose(new double[] { .1, .2, .3, .3, .1 }));
+            rnd = new MersenneTwister(3);
+            for (int i = 0; i < 30; i++)
+                Assert.AreEqual(1, rnd.Choose(new double[] { 0, 1, 0, 0, 0 }));
+        }
+
+        [Test()]
+        public void SampleTest()
+        {
+            InitZakHmm();
+            //var t = MathNet.Numerics.LinearAlgebra.MatrixModule.eigen<Matrix<double> , double>(zakHmm.StateTransitionProbabilities);
+            int sampleSize = 100000;
+            var sample = zakHmm.SampleHmm(14).Take(sampleSize).ToArray();
+            //var sunProb = sample.Where(i => i.Symbol == i.Parent.States["Sun"]).Count() / (double)sampleSize;
+            //var cloudProb = sample.Where(i => i.Symbol == i.Parent.States["Cloud"]).Count() / (double)sampleSize;
+            //var rainProb = sample.Where(i => i.Symbol == i.Parent.States["Rain"]).Count() / (double)sampleSize;
+            var wetProb = sample.Where(i => i.SymbolName == "Wet").Count() / (double)sampleSize;
+            var dryProb = sample.Where(i => i.SymbolName == "Dry").Count() / (double)sampleSize;
+            var dampProb = sample.Where(i => i.SymbolName == "Damp").Count() / (double)sampleSize;
+            AssertAlmostEqual(.209, wetProb);
+            AssertAlmostEqual(.698, dryProb);
+            AssertAlmostEqual(.094, dampProb);
+        }
+
+        /*
+        [Test()]
+        public void ParameterEstimator()
+        {
+        }
+        */
 	}
 }
 

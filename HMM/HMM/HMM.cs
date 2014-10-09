@@ -3,6 +3,7 @@ using System.Linq;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using System.Collections.Generic;
+using MathNet.Numerics.Random;
 
 namespace HMM
 {
@@ -146,9 +147,32 @@ namespace HMM
             }
             return ret;
         }
+        public IEnumerable<HMMSample> SampleHmm(int? seed = null)
+        {
+            if (seed == null) seed = (new Random()).Next();
+            var rnd = new MersenneTwister(seed.Value);
+            HMMSample state;
+            {
+                int initalState = rnd.Choose(this.IntialStateProbabilities);
+                state = new HMMSample(this, -1, initalState, this.IntialStateProbabilities[initalState].Log(), -1);
+            }
+            while (true)
+            {
+                int fromState = state.ToState;
+                int toState = rnd.Choose(StateTransitionProbabilities.Row(state.ToState));
+                state = new HMMSample(this, fromState, toState, 
+                                      state.LogProbability + StateTransitionProbabilities[fromState, toState].Log(),
+                                      rnd.Choose(this.SymbolEmissionProbabilities[fromState].Row(toState)));
+                yield return state;
+            }
+        }
         #endregion
 
         #region Misc Helper Functions
+        public string GetStateName(int state)
+        {
+            return States.FirstOrDefault(i => i.Value == state).Key;
+        }
         public HMMParameterEstimator CreateParameterEstimator(params string[] outputSequence)
         {
             return CreateParameterEstimator(outputSequence.Select(i => this.Alphabet[i]).ToArray());
