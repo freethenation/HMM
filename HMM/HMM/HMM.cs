@@ -80,7 +80,8 @@ namespace HMM
                     + SymbolEmissionProbabilities[s][state, outputSequence[time-1]].Log())
                 .LogSum();
             };
-            return forward.Memorize();
+            forward = forward.Memorize();
+            return forward;
 		}
         #endregion
 
@@ -108,7 +109,8 @@ namespace HMM
                     + SymbolEmissionProbabilities[state][s, outputSequence[time]].Log())
                 .LogSum();
             };
-            return backward.Memorize();
+            backward = backward.Memorize();
+            return backward;
         }
         #endregion
 
@@ -128,7 +130,8 @@ namespace HMM
                         ))
                     .Largest(viterbiStep => viterbiStep.LogProbability);
             };
-            return viterbi.Memorize();
+            viterbi = viterbi.Memorize();
+            return viterbi;
         }
         public IEnumerable<ViterbiStep> ViterbiPath(params string[] outputSequence)
         {

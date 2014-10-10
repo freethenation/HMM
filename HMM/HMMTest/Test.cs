@@ -226,6 +226,22 @@ namespace HMMTest
         }
 
         [Test()]
+        public void EstimateParameterTest()
+        {
+            InitZakHmm();
+            int sampleSize = 1000;
+            var sample = zakHmm.SampleHmm(11).Take(sampleSize).ToArray();
+            //modify model
+            zakHmm.StateTransitionProbabilities.SetRow(0, new Double[] { .7, .3, 0 });
+            //train / iterate
+            for (int iteration = 0; iteration < 10; iteration++)
+            {
+                var estimator = zakHmm.CreateParameterEstimator(sample.Select(i => i.Symbol).ToArray());
+                estimator.UpdateHMM();
+            }
+        }
+
+        [Test()]
         public void SampleTest()
         {
             InitZakHmm();
@@ -248,13 +264,6 @@ namespace HMMTest
             AssertAlmostEqual(.7, Math.Round(dryProb, 1));
             AssertAlmostEqual(.1, Math.Round(dampProb, 1));
         }
-
-        /*
-        [Test()]
-        public void ParameterEstimator()
-        {
-        }
-        */
 	}
 }
 
