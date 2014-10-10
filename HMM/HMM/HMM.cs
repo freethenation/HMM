@@ -34,6 +34,14 @@ namespace HMM
                 SymbolEmissionProbabilities[i].SetColumn(0, Vector<double>.Build.DenseOfConstant(States.Count, 1.0));
 			}
 		}
+        public void Normalize()
+        {
+            this.IntialStateProbabilities.SetValues(this.IntialStateProbabilities.Normalize(1).ToArray());
+            this.StateTransitionProbabilities.SetSubMatrix(0, 0, this.StateTransitionProbabilities.NormalizeRows(1));
+            foreach (var fromState in States.Values)
+                this.SymbolEmissionProbabilities[fromState]
+                    .SetSubMatrix(0, 0, this.SymbolEmissionProbabilities[fromState].NormalizeRows(1));
+        }
 		public void Validate()
 		{
 			//validate IntialStateProbabilities

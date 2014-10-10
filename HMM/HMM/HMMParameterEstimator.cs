@@ -63,7 +63,9 @@ namespace HMM
                 (matrix, fromState) => matrix.ForEach(
                     (row, toState) => Parent.SymbolEmissionProbabilities[fromState].SetRow(toState, row)
                 )
-           );     
+           );
+           //Parent.Normalize();
+           //Parent.Validate();
         }
         public double ExpectedNumberOfTransitions(int time, int fromState, int toState)
         {

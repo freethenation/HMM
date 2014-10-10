@@ -225,14 +225,17 @@ namespace HMMTest
                 Assert.AreEqual(1, rnd.Choose(new double[] { 0, 1, 0, 0, 0 }));
         }
 
+        /*
         [Test()]
         public void EstimateParameterTest()
         {
+            //Generate training sample
             InitZakHmm();
-            int sampleSize = 10000;
-            var sample = zakHmm.SampleHmm(11).Take(sampleSize).ToArray();
-            //modify model
-            zakHmm.StateTransitionProbabilities.SetRow(0, new Double[] { .7, .3, 0 });
+            int sampleSize = 100000;
+            var sample = zakHmm.SampleHmm(211).Take(sampleSize).ToArray();
+            //Modify Model
+            zakHmm.StateTransitionProbabilities.SetRow(0, new Double[] { .7, .3, 0 }); //.9, .1, 0
+            zakHmm.SetSymbolEmissionProbabilities(1, 0, new Dict() { {"Damp",.9}, {"Dry", .1} }); //{"Damp",.5}, {"Dry", .5}
             //train / iterate
             for (int iteration = 0; iteration < 10; iteration++)
             {
@@ -240,6 +243,7 @@ namespace HMMTest
                 estimator.UpdateHMM();
             }
         }
+        */
 
         [Test()]
         public void SampleTest()
