@@ -81,6 +81,9 @@ namespace HMM
                 .LogSum();
             };
             forward = forward.Memorize();
+            //Precompute every 1000th time to avoid stack overflows... hack but fuck it
+            for (int time = 1000; time < outputSequence.Length; time+=1000)
+                States.Values.ForEach(state => forward(time, state));
             return forward;
 		}
         #endregion
@@ -110,6 +113,9 @@ namespace HMM
                 .LogSum();
             };
             backward = backward.Memorize();
+            //Precompute every 1000th time to avoid stack overflows... hack but fuck it
+            for (int time = outputSequence.Length-1000; time > 0; time-=1000)
+                States.Values.ForEach(state => backward(time, state));
             return backward;
         }
         #endregion

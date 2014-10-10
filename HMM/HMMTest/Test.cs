@@ -229,7 +229,7 @@ namespace HMMTest
         public void EstimateParameterTest()
         {
             InitZakHmm();
-            int sampleSize = 1000;
+            int sampleSize = 10000;
             var sample = zakHmm.SampleHmm(11).Take(sampleSize).ToArray();
             //modify model
             zakHmm.StateTransitionProbabilities.SetRow(0, new Double[] { .7, .3, 0 });
