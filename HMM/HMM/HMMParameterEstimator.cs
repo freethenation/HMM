@@ -72,7 +72,7 @@ namespace HMM
             return ForwardFunc(time, fromState) 
                 + Parent.StateTransitionProbabilities[fromState, toState].Log()
                 + Parent.SymbolEmissionProbabilities[fromState][toState, OutputSequence[time]].Log()
-                + BackwardFunc(time, toState)
+                + BackwardFunc(time+1, toState)
                 - ProbabilityOfOutput;
         }
         public double TotalExpectedNumberOfTransitions(int fromState, int toState, int outputedSymbol)

@@ -225,25 +225,28 @@ namespace HMMTest
                 Assert.AreEqual(1, rnd.Choose(new double[] { 0, 1, 0, 0, 0 }));
         }
 
-        /*
+
         [Test()]
         public void EstimateParameterTest()
         {
             //Generate training sample
             InitZakHmm();
-            int sampleSize = 100000;
+            int sampleSize = 10000;
             var sample = zakHmm.SampleHmm(211).Take(sampleSize).ToArray();
             //Modify Model
             zakHmm.StateTransitionProbabilities.SetRow(0, new Double[] { .7, .3, 0 }); //.9, .1, 0
             zakHmm.SetSymbolEmissionProbabilities(1, 0, new Dict() { {"Damp",.9}, {"Dry", .1} }); //{"Damp",.5}, {"Dry", .5}
+            //Calculate original probability of the model
+            var forward = zakHmm.ForwardFunc((sample.Select(i => i.Symbol).ToArray()));
+            var probOrig = zakHmm.States.Values.Select(state => forward(sampleSize, state)).LogSum();
             //train / iterate
-            for (int iteration = 0; iteration < 10; iteration++)
-            {
-                var estimator = zakHmm.CreateParameterEstimator(sample.Select(i => i.Symbol).ToArray());
-                estimator.UpdateHMM();
-            }
+            var estimator = zakHmm.CreateParameterEstimator(sample.Select(i => i.Symbol).ToArray());
+            estimator.UpdateHMM();
+            //Calculate final probability of the model
+            forward = zakHmm.ForwardFunc((sample.Select(i => i.Symbol).ToArray()));
+            var probFinal = zakHmm.States.Values.Select(state => forward(sampleSize, state)).LogSum();
+            Assert.Greater(probFinal, probOrig);
         }
-        */
 
         [Test()]
         public void SampleTest()
