@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HMM", "HMM\HMM.csproj", "{3
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HMMTest", "HMMTest\HMMTest.csproj", "{B0B9ED1A-01BC-4ACF-8259-E733E2668F54}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLP", "NLP\NLP.csproj", "{25AF312B-24DD-420F-AEED-3002C45C2E61}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -12,6 +14,12 @@ Global
 		Release-Signed|Any CPU = Release-Signed|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{25AF312B-24DD-420F-AEED-3002C45C2E61}.Debug|x86.ActiveCfg = Debug|x86
+		{25AF312B-24DD-420F-AEED-3002C45C2E61}.Debug|x86.Build.0 = Debug|x86
+		{25AF312B-24DD-420F-AEED-3002C45C2E61}.Release|x86.ActiveCfg = Release|x86
+		{25AF312B-24DD-420F-AEED-3002C45C2E61}.Release|x86.Build.0 = Release|x86
+		{25AF312B-24DD-420F-AEED-3002C45C2E61}.Release-Signed|Any CPU.ActiveCfg = Debug|x86
+		{25AF312B-24DD-420F-AEED-3002C45C2E61}.Release-Signed|Any CPU.Build.0 = Debug|x86
 		{3C864D65-CD8A-4B27-9E2A-2F7C2D66F4D1}.Debug|x86.ActiveCfg = Debug|x86
 		{3C864D65-CD8A-4B27-9E2A-2F7C2D66F4D1}.Debug|x86.Build.0 = Debug|x86
 		{3C864D65-CD8A-4B27-9E2A-2F7C2D66F4D1}.Release|x86.ActiveCfg = Release|x86
