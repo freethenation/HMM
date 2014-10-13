@@ -7,7 +7,6 @@ namespace NLP
     {
         public static void Main(string[] args)
         {
-
             foreach (var file in Directory.GetFiles("/home/freethenation/Downloads/brown_tei/", "*.xml"))
             {
                 Corpra corpra = new Corpra();

@@ -5,9 +5,9 @@ using HMM;
 
 namespace NLP
 {
-    public class DictionaryEntry
+    public class WordDictEntry
     {
-        public DictionaryEntry(string word)
+        public WordDictEntry(string word)
         {
             Word = word;
         }
@@ -44,15 +44,15 @@ namespace NLP
         }
 
     }
-    public class Dictionary
+    public class WordDict
     {
-        private Dictionary<string, DictionaryEntry> dict = new Dictionary<string, DictionaryEntry>();
-        public Dictionary()
+        private Dictionary<string, WordDictEntry> dict = new Dictionary<string, WordDictEntry>();
+        public WordDict()
         {
         }
-        public DictionaryEntry Lookup(string word)
+        public WordDictEntry Lookup(string word)
         {
-            DictionaryEntry ret;
+            WordDictEntry ret;
             dict.TryGetValue(word, out ret);
             return ret;
         }
@@ -62,10 +62,10 @@ namespace NLP
         }
         public void UpdateCount(Word word)
         {
-            DictionaryEntry entry;
+            WordDictEntry entry;
             if (!dict.TryGetValue(word.Name.ToLower(), out entry))
             {
-                entry = new DictionaryEntry(word.Name.ToLower());
+                entry = new WordDictEntry(word.Name.ToLower());
                 dict[entry.Word] = entry;
             }
             entry.UpdateCount(word);
