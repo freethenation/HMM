@@ -38,23 +38,17 @@ namespace NLP
                 return _normalizedCounts;
             }
         }
-        public Tags MostCommonTag
+        public KeyValuePair<Tags,int> MostCommonTag
         {
-            get { return _counts.Largest(i => i.Value).Key; }
+            get { return _counts.Largest(i => i.Value); }
         }
 
     }
     public class WordDict
     {
-        private Dictionary<string, WordDictEntry> dict = new Dictionary<string, WordDictEntry>();
+        public readonly Dictionary<string, WordDictEntry> Words = new Dictionary<string, WordDictEntry>();
         public WordDict()
         {
-        }
-        public WordDictEntry Lookup(string word)
-        {
-            WordDictEntry ret;
-            dict.TryGetValue(word, out ret);
-            return ret;
         }
         public void UpdateCount(IEnumerable<Word> words)
         {
@@ -63,10 +57,10 @@ namespace NLP
         public void UpdateCount(Word word)
         {
             WordDictEntry entry;
-            if (!dict.TryGetValue(word.Name.ToLower(), out entry))
+            if (!Words.TryGetValue(word.Name.ToLower(), out entry))
             {
                 entry = new WordDictEntry(word.Name.ToLower());
-                dict[entry.Word] = entry;
+                Words[entry.Word] = entry;
             }
             entry.UpdateCount(word);
         }

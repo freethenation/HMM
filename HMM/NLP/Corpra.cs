@@ -24,21 +24,44 @@ namespace NLP
         {
 
         }
-        public void Load(string path)
+        public void Load(string path, Func<string, Tags, Tags> tagFunc = null)
         {
+            if (tagFunc == null) tagFunc = (word, tag) => tag;
             Sentences = new List<List<Word>>();
             XDocument doc = XDocument.Load(path);
             var ns = doc.Root.Name.Namespace;
             foreach (var s in doc.Root.Descendants(ns + "s")) {
                 List<Word> sentence = new List<Word>();
                 foreach (var w in s.Descendants()) {
-                    if(w.Attribute("type") != null)
-                        sentence.Add(new Word(w.Value, Corpra.ParseTag(w.Attribute("type").Value)));
+                    if (w.Attribute("type") != null)
+                    {
+                        Tags tag = tagFunc(w.Value, Corpra.ParseTag(w.Attribute("type").Value));
+                        sentence.Add(new Word(w.Value, tag));
+                    }
                     else
-                        sentence.Add(new Word(w.Value, Corpra.ParseTag(w.Attribute("pos").Value)));
+                    {
+                        Tags tag = tagFunc(w.Value, Corpra.ParseTag(w.Attribute("pos").Value));
+                        sentence.Add(new Word(w.Value, tag));
+                    }
                 }
                 Sentences.Add(sentence);
             }
+        }
+        public IEnumerable<IEnumerable<string>> RawSentences()
+        {
+            foreach (var sentence in Sentences)
+            {
+                yield return sentence.Select(i => i.Name);
+            }
+        }
+        public Tuple<int, int> PercentCorrect(Corpra compareTo)
+        {
+            int totalWords = Sentences.SelectMany(i => i).Count();
+            int correctCount = Sentences.SelectMany(i => i)
+                .Zip(compareTo.Sentences.SelectMany(i => i),
+                    (i, j) => i.Tag == j.Tag)
+                .Where(i => i).Count();
+            return Tuple.Create(correctCount, totalWords);
         }
 
         public static Tags ParseTag(string tag)
