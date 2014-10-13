@@ -17,20 +17,16 @@ namespace NLP
 
         public static void MarkovTagger()
         {
-            //Build Dicts
-            WordDict dict = new WordDict();
-            WordDict dictInital = new WordDict(); //stores words occur first in a sentence
-            foreach (var file in Directory.GetFiles("/home/freethenation/Downloads/brown_tei/", "*.xml"))
-            {
-                Corpra corpra = new Corpra();
-                corpra.Load(file); 
-                dict.UpdateCount(corpra.Sentences.SelectMany(i => i));
-                dictInital.UpdateCount(corpra.Sentences.Select(i => i.First()));
-            }
+
+            Corpora[] texts = Directory.GetFiles("/home/freethenation/Downloads/brown_tei/", "*.xml")
+                .Select(i => new Corpora(i))
+                .ToArray();
             //Create Markov Model
             HMM.HMM hmm = new HMM.HMM(Enum.GetNames(typeof(Tags)), Enum.GetNames(typeof(Tags)));
             //Set Inital Probabilities
             {
+                WordDict dictInital = new WordDict(); //stores words that are the first word in a sentence
+                dictInital.UpdateCount(texts.SelectMany(i => i.Sentences).Select(i => i.First()));
                 var tagCounts = dictInital.Words
                     .SelectMany(i => i.Value.TagCounts.AsEnumerable())
                     .GroupBy(i => i.Key)
@@ -52,7 +48,7 @@ namespace NLP
             WordDict dict = new WordDict();
             foreach (var file in Directory.GetFiles("/home/freethenation/Downloads/brown_tei/", "*.xml"))
             {
-                Corpra corpra = new Corpra();
+                Corpora corpra = new Corpora();
                 corpra.Load(file); 
                 dict.UpdateCount(corpra.Sentences.SelectMany(i => i));
             }
@@ -60,9 +56,9 @@ namespace NLP
             Tuple<int, int> totalCorrect = Tuple.Create(0, 0);
             foreach (var file in Directory.GetFiles("/home/freethenation/Downloads/brown_tei/validate", "*.xml"))
             {
-                Corpra correctCorpra = new Corpra();
+                Corpora correctCorpra = new Corpora();
                 correctCorpra.Load(file);
-                Corpra guessCorpra = new Corpra();
+                Corpora guessCorpra = new Corpora();
                 guessCorpra.Load(file, (word, trash) => 
                                  {
                     if(dict.Words.ContainsKey(word.ToLower()))

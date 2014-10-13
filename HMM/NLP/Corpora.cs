@@ -18,12 +18,13 @@ namespace NLP
         public readonly Tags Tag;
     }
 
-    public class Corpra
+    public class Corpora
     {
         public List<List<Word>> Sentences;
-        public Corpra()
+        public Corpora() {}
+        public Corpora(string path) 
         {
-
+            Load(path);
         }
         public void Load(string path, Func<string, Tags, Tags> tagFunc = null)
         {
@@ -36,19 +37,19 @@ namespace NLP
                 foreach (var w in s.Descendants()) {
                     if (w.Attribute("type") != null)
                     {
-                        Tags tag = tagFunc(w.Value, Corpra.ParseTag(w.Attribute("type").Value));
+                        Tags tag = tagFunc(w.Value, Corpora.ParseTag(w.Attribute("type").Value));
                         sentence.Add(new Word(w.Value, tag));
                     }
                     else
                     {
-                        Tags tag = tagFunc(w.Value, Corpra.ParseTag(w.Attribute("pos").Value));
+                        Tags tag = tagFunc(w.Value, Corpora.ParseTag(w.Attribute("pos").Value));
                         sentence.Add(new Word(w.Value, tag));
                     }
                 }
                 Sentences.Add(sentence);
             }
         }
-        public Tuple<int, int> PercentCorrect(Corpra compareTo)
+        public Tuple<int, int> PercentCorrect(Corpora compareTo)
         {
             int totalWords = Sentences.SelectMany(i => i).Count();
             int correctCount = Sentences.SelectMany(i => i)
