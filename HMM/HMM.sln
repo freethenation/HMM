@@ -34,6 +34,6 @@ Global
 		{B0B9ED1A-01BC-4ACF-8259-E733E2668F54}.Release-Signed|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = HMM\HMM.csproj
+		StartupItem = NLP\NLP.csproj
 	EndGlobalSection
 EndGlobal

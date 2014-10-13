@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 
 namespace NLP
 {
@@ -6,7 +7,14 @@ namespace NLP
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+
+            foreach (var file in Directory.GetFiles("/home/freethenation/Downloads/brown_tei/", "*.xml"))
+            {
+                Corpra corpra = new Corpra();
+                corpra.Load(file); 
+            }
+
+            int i = 1;
         }
     }
 }

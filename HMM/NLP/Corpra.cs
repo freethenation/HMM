@@ -1,30 +1,49 @@
 using System;
-using System.Xml.Linq;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using System.Xml.Linq;
 
 namespace NLP
 {
+    public class Word
+    {   
+        public Word(string name, Tags tag)
+        {
+            Name = name;
+            Tag = tag;
+        }
+        public readonly string Name;
+        public readonly Tags Tag;
+    }
+
     public class Corpra
     {
-        public IList<Word> Sentences;
+        public List<List<Word>> Sentences;
         public Corpra()
         {
 
         }
         public void Load(string path)
         {
+            Sentences = new List<List<Word>>();
             XDocument doc = XDocument.Load(path);
-            foreach (var s in doc.Descendants("s")) {
+            var ns = doc.Root.Name.Namespace;
+            foreach (var s in doc.Root.Descendants(ns + "s")) {
                 List<Word> sentence = new List<Word>();
                 foreach (var w in s.Descendants()) {
-                    //sentence.Add(new Word(w.Attribute("type"), 
+                    if(w.Attribute("type") != null)
+                        sentence.Add(new Word(w.Value, Corpra.ParseTag(w.Attribute("type").Value)));
+                    else
+                        sentence.Add(new Word(w.Value, Corpra.ParseTag(w.Attribute("pos").Value)));
                 }
+                Sentences.Add(sentence);
             }
         }
-        public Tags ParseTag(string tag)
+
+        public static Tags ParseTag(string tag)
         {
+            tag = tag.ToUpper().Replace(' ', '+').Replace("+*", "*");
             if (tag.StartsWith("FW-"))
                 return Tags.OTHER;
             switch (tag)
@@ -35,15 +54,17 @@ namespace NLP
                 case ".":
                 case "--":
                 case ":":
+                case "PCT":
                     return Tags.PUNCTUATION;
-                case "*":
+                //case "*":
+                case "NEG":
                     return Tags.NEGATOR;
                 case "ABL":
                 case "ABN":
                 case "ABX":
                     return Tags.PREQUANTIFIER;
                 case "AP":
-                case "AP$":
+                case "APG":
                 case "AP+AP":
                     return Tags.POSTDETERMINER;
                 case "AT":
@@ -59,6 +80,7 @@ namespace NLP
                 case "BEN":
                 case "BER":
                 case "BER*":
+                case "WDT+BER+PPS":
                 case "BEZ":
                 case "BEZ*":
                 case "WDT+BER":
@@ -69,7 +91,8 @@ namespace NLP
                 case "CS":
                     return Tags.CONJUNCTION;
                 case "CD":
-                case "CD$":
+                //case "CD$":
+                case "CDG":
                 case "OD":
                     return Tags.NUMERAL;
                 case "DO":
@@ -83,14 +106,16 @@ namespace NLP
                 case "WDT+DOD":
                     return Tags.TODO;
                 case "DT":
-                case "DT$":
+                //case "DT$":
+                case "DTG":
                 case "DT+BEZ":
                 case "DT+MD":
                 case "DTI":
                 case "DTS":
                 case "DTS+BEZ":
                 case "DTX":
-                case "PP$":
+                //case "PP$":
+                case "PPG":
                     return Tags.DETERMINER;
                 case "EX":
                 case "EX+BEZ":
@@ -113,9 +138,13 @@ namespace NLP
                 case "IN":
                 case "IN+IN":
                 case "IN+PPO":
+                case "IN+NN":
+                case "IN+AT":
+                case "IN+NP":
                     return Tags.PREPOSITION;
                 case "JJ":
-                case "JJ$":
+                //case "JJ$":
+                case "JJG":
                 case "JJ+JJ":
                 case "JJR":
                 case "JJR+CS":
@@ -129,7 +158,8 @@ namespace NLP
                 case "MD+TO":
                     return Tags.AUXILIARY_VERB;
                 case "NN":
-                case "NN$":
+                //case "NN$":
+                case "NNG":
                 case "NN+BEZ":
                 case "NN+HVD":
                 case "NN+HVZ":
@@ -137,32 +167,42 @@ namespace NLP
                 case "NN+MD":
                 case "NN+NN":
                 case "NNS":
-                case "NNS$":
+                //case "NNS$":
+                case "NNSG":
                 case "NNS+MD":
+                case "AT+NN":
                     return Tags.NOUN;
                 case "NP":
-                case "NP$":
+                //case "NP$":
+                case "NPG":
                 case "NP+BEZ":
                 case "NP+HVZ":
                 case "NP+MD":
                 case "NPS":
-                case "NPS$":
+                //case "NPS$":
+                case "NPSG":
+                case "AT+NP":
                     return Tags.NOUN_PROPER;
                 case "NR":
-                case "NR$":
+                //case "NR$":
+                case "NRG":
                 case "NR+MD":
                 case "NRS":
                     return Tags.NOUN_ADVERBIAL;
                 case "PN":
-                case "PN$":
+                //case "PN$":
+                case "PNG":
                 case "PN+BEZ":
                 case "PN+HVD":
                 case "PN+HVZ":
                 case "PN+MD":
-                case "PP$$":
+                //case "PP$$":
+                case "PPGG":
                 case "PPL":
+                case "PPL+VBZ":
                 case "PPLS":
                 case "PPO":
+                case "PPO+IN":
                 case "PPS":
                 case "PPS+BEZ":
                 case "PPS+HVD":
@@ -177,7 +217,8 @@ namespace NLP
                 case "PPSS+HVD":
                 case "PPSS+MD":
                 case "PPSS+VB":
-                case "WP$":
+                //case "WP$":
+                case "WPG":
                 case "WPO":
                 case "WPS":
                 case "WPS+BEZ":
@@ -190,11 +231,13 @@ namespace NLP
                 case "WQL":
                     return Tags.QUALIFIER;
                 case "RB":
-                case "RB$":
+                //case "RB$":
+                case "RBG":
                 case "RB+BEZ":
                 case "RB+CS":
+                case "RB+CC":
                 case "RBR":
-                case "RPR+CS":
+                case "RBR+CS":
                 case "RBT":
                 case "RN":
                 case "RP":
@@ -211,6 +254,7 @@ namespace NLP
                 case "WRB+MD":
                     return Tags.ADVERB;
                 case "UH":
+                case "NIL":
                     return Tags.OTHER;
                 case "VB":
                 case "VB+AT":
@@ -234,19 +278,6 @@ namespace NLP
         }
     }
 }
-
-public interface ISentence : IEnumerable<Word> {} 
-
-    public class Word
-    {   
-        public Word(string name, Tags tag)
-        {
-            Name = name;
-            Tag = tag;
-        }
-        public readonly string Name;
-        public readonly Tags Tag;
-    }
 
 public enum Tags
 {
