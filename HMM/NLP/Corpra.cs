@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using HMM;
 
 namespace NLP
 {
@@ -45,13 +46,6 @@ namespace NLP
                     }
                 }
                 Sentences.Add(sentence);
-            }
-        }
-        public IEnumerable<IEnumerable<string>> RawSentences()
-        {
-            foreach (var sentence in Sentences)
-            {
-                yield return sentence.Select(i => i.Name);
             }
         }
         public Tuple<int, int> PercentCorrect(Corpra compareTo)
