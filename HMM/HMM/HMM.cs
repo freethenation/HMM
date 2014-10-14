@@ -129,10 +129,6 @@ namespace HMM
         #endregion
 
         #region ViterbiPath
-        private HMMTrellisFunc<int, ViterbiStep> ViterbiFunc(params int[] outputSequence)
-        {
-            return ViterbiFunc((fromState, toState, time) => SymbolEmissionProbabilities[fromState][toState, outputSequence[time-1]], outputSequence);
-        }
         private HMMTrellisFunc<int, ViterbiStep> ViterbiFunc(Func<int, int, int, double> symbolEmissionProbFunc, params int[] outputSequence)
         {
             HMMTrellisFunc<int, ViterbiStep> viterbi = null;
@@ -157,7 +153,11 @@ namespace HMM
         }
         public IEnumerable<ViterbiStep> ViterbiPath(params int[] outputSequence)
         {
-            var viterbiFunc = this.ViterbiFunc(outputSequence);
+            return ViterbiPath((fromState, toState, time) => SymbolEmissionProbabilities[fromState][toState, outputSequence[time - 1]], outputSequence);
+        }
+        public IEnumerable<ViterbiStep> ViterbiPath(Func<int, int, int, double> symbolEmissionProbFunc, params int[] outputSequence)
+        {
+            var viterbiFunc = this.ViterbiFunc(symbolEmissionProbFunc, outputSequence);
             List<ViterbiStep> ret = new List<ViterbiStep>();
             //Add the finial state with the largest probability
             ret.Add(States.Values.Select(state => viterbiFunc(outputSequence.Length, state)).Largest(i => i.LogProbability));

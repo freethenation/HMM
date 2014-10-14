@@ -68,6 +68,73 @@ namespace NLP
                 }
             }
             hmm.Validate();
+            //Create a function that returns the possible tags for a given word
+            Func<string, Dictionary<Tags, double>> PossibleTags;
+            {
+                Dictionary<string, Dictionary<Tags, int>> tagCounts = new Dictionary<string, Dictionary<Tags, int>>();
+                foreach (var word in texts.SelectMany(i => i.Sentences).SelectMany(i => i))
+                {
+                    var w = word.Name.ToLower();
+                    if (!tagCounts.ContainsKey(w))
+                        tagCounts[w] = new Dictionary<Tags, int>();
+                    if (!tagCounts[w].ContainsKey(word.Tag))
+                        tagCounts[w][word.Tag] = 0;
+                    tagCounts[w][word.Tag]++;
+                }
+                Dictionary<string, Dictionary<Tags, double>> tagData = tagCounts.Select(counts =>
+                {
+                    double total = counts.Value.Values.Sum();
+                    var ret = counts.Value
+                        .Select(i => new KeyValuePair<Tags, double>(i.Key, i.Value / total))
+                        .ToDictionary();
+                    foreach (var tag in Enum.GetValues(typeof(Tags)).Cast<Tags>())
+                    {
+                        if (!ret.ContainsKey(tag))
+                            ret[tag] = .00000000001;
+                    }
+                    return new KeyValuePair<string, Dictionary<Tags, double>>(counts.Key, ret);
+                }).ToDictionary();
+
+                PossibleTags = (word) =>
+                {
+                    Dictionary<Tags, double> entry;
+                    if (tagData.TryGetValue(word.ToLower(), out entry)) 
+                        return entry;
+                    double numTypes = Enum.GetValues(typeof(Tags)).Cast<Tags>().Count();
+                    return Enum.GetValues(typeof(Tags)) //unknown tag
+                        .Cast<Tags>()
+                        .Select(tag => new KeyValuePair<Tags, double>(tag, 1 / numTypes))
+                        .ToDictionary();
+                };
+            }
+            //test it!
+            // Test Dict on unseen text
+            Tuple<int, int> totalCorrect = Tuple.Create(0, 0);
+            foreach (var file in Directory.GetFiles("/home/freethenation/Downloads/brown_tei/validate", "*.xml"))
+            {
+                Corpora correctCorpra = new Corpora();
+                correctCorpra.Load(file);
+                Corpora guessCorpra = new Corpora();
+                guessCorpra.Load(file);
+                //reguess based on Markov Model
+                guessCorpra.Sentences = guessCorpra.Sentences.Select(sentence =>
+                {
+                    return hmm.ViterbiPath(
+                        (fromState, toState, time) => PossibleTags(sentence[time-1].Name)[(Tags)fromState], 
+                        sentence.Select(i => (int)i.Tag).ToArray()
+                    )
+                    .Zip(sentence, (step, word) => new Word(word.Name, (Tags)step.ToState))
+                    .ToList();
+
+                }).ToList();
+                //add to total correct
+                var correct = correctCorpra.PercentCorrect(guessCorpra);
+                totalCorrect = Tuple.Create(totalCorrect.Item1 + correct.Item1, totalCorrect.Item2 + correct.Item2);
+            }
+            Console.WriteLine("Markov Tagger");
+            Console.WriteLine(string.Format("{0} / {1}", totalCorrect.Item1, totalCorrect.Item2));
+            Console.WriteLine(totalCorrect.Item1 / (double)totalCorrect.Item2);
+            Console.WriteLine();
         }
 
         /// <summary>
