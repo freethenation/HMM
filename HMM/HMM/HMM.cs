@@ -131,6 +131,10 @@ namespace HMM
         #region ViterbiPath
         private HMMTrellisFunc<int, ViterbiStep> ViterbiFunc(params int[] outputSequence)
         {
+            return ViterbiFunc((fromState, toState, time) => SymbolEmissionProbabilities[fromState][toState, outputSequence[time-1]], outputSequence);
+        }
+        private HMMTrellisFunc<int, ViterbiStep> ViterbiFunc(Func<int, int, int, double> symbolEmissionProbFunc, params int[] outputSequence)
+        {
             HMMTrellisFunc<int, ViterbiStep> viterbi = null;
             viterbi = (time, state) =>
             {
@@ -140,7 +144,7 @@ namespace HMM
                         new ViterbiStep(fromState, state,
                             viterbi(time-1, fromState).LogProbability 
                                 + StateTransitionProbabilities[fromState, state].Log()
-                                + SymbolEmissionProbabilities[fromState][state, outputSequence[time-1]].Log()
+                                + symbolEmissionProbFunc(fromState, state, time).Log()
                         ))
                     .Largest(viterbiStep => viterbiStep.LogProbability);
             };
