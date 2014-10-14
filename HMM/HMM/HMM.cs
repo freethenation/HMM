@@ -50,7 +50,7 @@ namespace HMM
 			//validate StateTransitionProbabilities
 			var rowSums = StateTransitionProbabilities.RowSums();
 			for (int i = 0; i < rowSums.Count; i++) {
-				if (!rowSums[i].AlmostEqual(1.0))
+				if (!rowSums[i].AlmostEqual(1.0, 5))
 					throw new InvalidProgramException(string.Format("StateTransitionProbabilities must sum to 1 for state '{0}'", States.First(j => j.Value == i).Key));
 			}
 			//validate SymbolEmissionProbabilities

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Xml.Linq;
 using HMM;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace NLP
 {
@@ -36,7 +37,37 @@ namespace NLP
                 var tagTotal = tagCounts.Sum();
                 hmm.IntialStateProbabilities.SetValues(tagCounts.Select(i => i / (double)tagTotal).ToArray());
             }
-            //hmm.IntialStateProbabilities.SetValues(dictInital.Words.SelectMany(i => i.Value));
+            //Set Transition Probabilities
+            {
+                Dictionary<Tuple<Tags, Tags>, int> tagPairCounts = texts.SelectMany(i => i.Sentences)
+                    .Select(sentence => sentence.Zip(sentence.Skip(1), (w1, w2) => Tuple.Create(w1.Tag, w2.Tag)))
+                    .SelectMany(i => i)
+                    .GroupBy(i => i)
+                    .Select(i => new KeyValuePair<Tuple<Tags,Tags>, int>(i.First(), i.Count()))
+                    .ToDictionary();
+                Dictionary<Tags, int> tagCounts = tagPairCounts
+                    .Select(i => new KeyValuePair<Tags, int>(i.Key.Item1, i.Value))
+                    .GroupBy(i => i.Key)
+                    .Select(i => new KeyValuePair<Tags, int>(i.First().Key, i.Sum(j => j.Value)))
+                    .ToDictionary();
+                for (int r = 0; r < hmm.StateTransitionProbabilities.RowCount; r++)
+                    for (int c = 0; c < hmm.StateTransitionProbabilities.ColumnCount; c++)
+                    {
+                        if (tagPairCounts.ContainsKey(Tuple.Create((Tags)r, (Tags)c)))
+                            hmm.StateTransitionProbabilities[r, c] = tagPairCounts[Tuple.Create((Tags)r, (Tags)c)] / (double)tagCounts[(Tags)r];
+                        else
+                            hmm.StateTransitionProbabilities[r, c] = .00000000001;
+                    }
+            }
+            //Set SymbolEmissionProbabilities (set so they do nothing as we rly dont want a hidden markov model)
+            {
+                foreach (var fromState in hmm.States.Values)
+                {
+                    hmm.SymbolEmissionProbabilities[fromState].Clear();
+                    hmm.SymbolEmissionProbabilities[fromState].SetColumn(fromState, Vector<double>.Build.DenseOfConstant(hmm.States.Count, 1));
+                }
+            }
+            hmm.Validate();
         }
 
         /// <summary>
