@@ -19,7 +19,7 @@ namespace NLP
         public static void MarkovTagger()
         {
 
-            Corpora[] texts = Directory.GetFiles("/home/freethenation/Downloads/brown_tei/", "*.xml")
+            Corpora[] texts = Directory.GetFiles("../../../../corporus/", "*.xml")
                 .Select(i => new Corpora(i))
                 .ToArray();
             //Create Markov Model
@@ -110,7 +110,7 @@ namespace NLP
             //test it!
             // Test Dict on unseen text
             Tuple<int, int> totalCorrect = Tuple.Create(0, 0);
-            foreach (var file in Directory.GetFiles("/home/freethenation/Downloads/brown_tei/validate", "*.xml"))
+            foreach (var file in Directory.GetFiles("../../../../corporus/validate", "*.xml"))
             {
                 Corpora correctCorpra = new Corpora();
                 correctCorpra.Load(file);
@@ -151,7 +151,7 @@ namespace NLP
         {
             // Build Dict
             WordDict dict = new WordDict();
-            foreach (var file in Directory.GetFiles("/home/freethenation/Downloads/brown_tei/", "*.xml"))
+            foreach (var file in Directory.GetFiles("../../../../corporus/", "*.xml"))
             {
                 Corpora corpra = new Corpora();
                 corpra.Load(file); 
@@ -159,7 +159,7 @@ namespace NLP
             }
             // Test Dict on unseen text
             Tuple<int, int> totalCorrect = Tuple.Create(0, 0);
-            foreach (var file in Directory.GetFiles("/home/freethenation/Downloads/brown_tei/validate", "*.xml"))
+            foreach (var file in Directory.GetFiles("../../../../corporus/validate", "*.xml"))
             {
                 Corpora correctCorpra = new Corpora();
                 correctCorpra.Load(file);
