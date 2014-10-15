@@ -12,7 +12,7 @@ namespace NLP
     {
         public static void Main(string[] args)
         {
-            //DumpTagger();
+            DumpTagger();
             MarkovTagger();
         }
 
@@ -56,7 +56,7 @@ namespace NLP
                         if (tagPairCounts.ContainsKey(Tuple.Create((Tags)r, (Tags)c)))
                             hmm.StateTransitionProbabilities[r, c] = tagPairCounts[Tuple.Create((Tags)r, (Tags)c)] / (double)tagCounts[(Tags)r];
                         else
-                            hmm.StateTransitionProbabilities[r, c] = .00000000001;
+                            hmm.StateTransitionProbabilities[r, c] = 0;
                     }
             }
             //Set SymbolEmissionProbabilities (set so they do nothing as we rly dont want a hidden markov model)
@@ -90,7 +90,7 @@ namespace NLP
                     foreach (var tag in Enum.GetValues(typeof(Tags)).Cast<Tags>())
                     {
                         if (!ret.ContainsKey(tag))
-                            ret[tag] = .00000000001;
+                            ret[tag] = 0;
                     }
                     return new KeyValuePair<string, Dictionary<Tags, double>>(counts.Key, ret);
                 }).ToDictionary();
@@ -128,6 +128,13 @@ namespace NLP
 
                 }).ToList();
                 //add to total correct
+                //var s1 = correctCorpra.Sentences[5].Select(i => i.Name).ToDelimitedString(" ");
+                //var t1 = correctCorpra.Sentences[5].Select(i => i.Tag.ToString()).ToDelimitedString(" ");
+                //var s2 = guessCorpra.Sentences[5].Select(i => i.Name).ToDelimitedString(" ");
+                //var t2 = guessCorpra.Sentences[5].Select(i => i.Tag.ToString()).ToDelimitedString(" ");
+                //var adj = hmm.StateTransitionProbabilities[(int)Tags.TOBE, (int)Tags.ADJECTIVE];
+                //var prep = hmm.StateTransitionProbabilities[(int)Tags.TOBE, (int)Tags.PREPOSITION];
+                //var above = PossibleTags("above");
                 var correct = correctCorpra.PercentCorrect(guessCorpra);
                 totalCorrect = Tuple.Create(totalCorrect.Item1 + correct.Item1, totalCorrect.Item2 + correct.Item2);
             }

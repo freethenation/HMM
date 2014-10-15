@@ -24,6 +24,13 @@ namespace HMM
             if (ret != null) return ret.Index;
             else return probabilities.Count() - 1; //last probability
         }
+        public static string ToDelimitedString(this IEnumerable<string> enumerable, string delimiter)
+        {
+            System.Text.StringBuilder builder = new System.Text.StringBuilder();
+            foreach (var item in enumerable) builder.Append(item).Append(delimiter);
+            builder.Remove(builder.Length - delimiter.Length, delimiter.Length);
+            return builder.ToString();
+        }
 		public static IEnumerable<int> Range(int start, int end)
 		{
 			for (int i = start; i < end; i++) {
